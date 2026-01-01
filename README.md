@@ -1,55 +1,70 @@
-# IPB Student Portal Logbook Bot
-This script automates the process of submitting logbook entries to the [Student Portal IPB University ](https://studentportal.ipb.ac.id)under the Kampus Merdeka Activity Log section. It reads activity details from an Excel file and uploads them along with file attachments.
+# 🤖 LOG-BOT SYSTEM v1.5.0
+### Smart, Stateless, & Secure Logbook Automation for IPB Students
 
-## Features
-- Reads student activity log data from an Excel file.
-- Automatically retrieves session cookies from Firefox or Chrome (based on user input).
-- Submits log entries and verifies whether each submission was successful.
-- Outputs a summary of the upload results to a CSV log file.
+[![Stateless Architecture](https://img.shields.io/badge/Architecture-Stateless-green.svg)](https://github.com/Anro128/IPB-Student-Portal-Logbook-Bot)
+[![Secure Data](https://img.shields.io/badge/Security-Memory--Only-blue.svg)](https://github.com/Anro128/IPB-Student-Portal-Logbook-Bot)
+[![Next.js 15](https://img.shields.io/badge/Frontend-Next.js%2015-black.svg)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
 
-## Installation
-1. Clone the repository or download the script.
-2. Install the required Python dependencies by running:
+**LOG-BOT** is a high-performance automation suite designed to help IPB University students manage their Kampus Merdeka Logbook entries with surgical precision and absolute privacy. 
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+> [!IMPORTANT]
+> **V1.5.0 UPDATE: FULL STATELESS ENGINE**  
+> Every byte of data—from Excel manifests to photo proof—is processed entirely in RAM. We store **nothing** on our disks. Once your submission session ends, the memory is purged instantly.
 
-## Input Data
-data.xlsx: Contains the activity log data to be submitted.
-The input Excel file should have columns corresponding to the following fields:
-- **Waktu**: The date of the activity (format: DD/MM/YYYY). This will be sent as the main date field of the log entry.
-- **Tstart**: Start time of the activity (format: HH:MM). This corresponds to the beginning of the mentoring or activity session.
-- **Tend** End time of the activity (format: HH:MM). Marks the end of the mentoring or session period.
-- **JenisLogId** An integer representing the type of activity being logged, corresponding to internal IDs used in the portal ( 1 for "Berita Acara Pembimbingan (Konsultasi/Mentoring/Coaching) ", 2 for "Berita Acara Ujian", and 3 for "Berita Acara Kegiatan").
-- **IsLuring**: Indicates the mode of activity delivery. Use 0 for online, 1 for offline, and 2 for Hybrid.
-- **Lokasi**: The physical or virtual location of the activity, depending on whether it was conducted offline or online (e.g., "Zoom", "Gedung Andi Hakim Nasoetion").
-- **Keterangan**: Additional description of the activity.
-- **FilePath**: Path to the supporting document or proof of activity (e.g., image, PDF). The script will upload this file as part of the submission.
+---
 
-## How to use
-1. Ensure you are logged in to [IPB Student Portal](https://studentportal.ipb.ac.id) using either Firefox or Chrome.
-2. Prepare your data.xlsx file in the same folder as this script.
-3. Run the script:
-    ```bash
-   python main.py
-   ```
-4. When prompted:
-    
-- Input the aktivitasId that corresponds to your Kampus Merdeka activity.
-    
-    Open the IPB Student Portal, go to your Kampus Merdeka Logbook page, and check the URL in your browser’s address bar. The aktivitasId is the long string at the end of the URL.
+## ✨ Features
 
-    For example, if your URL looks like this:
+### 🛡️ Security First (Stateless Engine)
+- **Zero Disk Footprint**: No local storage for uploads or temporary files. Everything remains in-memory.
+- **Stateless Processing**: Your session data exists only during the transmission window.
+- **Transparency**: High-visibility security marquee ensures you know exactly how your data is handled.
 
-    ![Example URL](images/example-aktivitasID.png)
+### 🎨 Modern Dashboard (Next.js 15)
+- **Glassmorphism UI**: A premium, translucent interface with smooth micro-animations.
+- **Progressive Feedback**: Real-time progress bars and success/failure tallies.
+- **Multi-Documentation Support**: Upload dozens of photos as a single batch directly to RAM.
+- **Dynamic Language Support**: Seamless switching between Indonesian and English.
 
-    Then your aktivitasId is the long string at the end of the URL: `mQmVKibuyaaaaaaaaaaaAJGZvXRzvNiKkxQi4S7w`
+---
 
-- Input the browser you used to log in: "firefox" or "chrome". **(If you use Chrome, you must run this script as an administrator.)**
+## 🚀 Quick Start
 
-5. After execution, check result.csv for success or failure of each log entry.
+### 📋 Prerequisites
+- **Node.js 20+** (LTS recommended)
+- **Python 3.10+**
 
+### ⚙️ Installation
+1. `npm install`
+2. `pip install -r backend/requirements.txt`
 
-## License
-This project is open source and free to use. Modify it as needed for your requirements.
+---
+
+## 🎯 How to Operate
+1. **Login** to Student Portal.
+2. **Find AktivitasId & Cookies** as guided in the dashboard.
+3. **Upload Manifest & Photos** directly to the secure memory buffer.
+4. **Execute** and watch real-time progress.
+
+---
+
+## 🚢 Deployment Guide
+Since the system is now **fully stateless**, it can be deployed to high-performance cloud providers like Vercel (Frontend) and Railway (Backend) with zero storage configuration. See [DEPLOYMENT.md](file:///c:/INTERNSHIP/SPIL/IPB-Student-Portal-Logbook-Bot/DEPLOYMENT.md) for full instructions.
+
+---
+
+## 🛠️ Technology Stack
+- **Frontend**: Next.js 15 + Tailwind CSS
+- **Backend API**: FastAPI (Stateless logic)
+- **Data**: Pandas + Openpyxl
+
+---
+
+## 👥 Development Team
+- **Anro (Developer)**: Core Logic & Bot Architecture
+- **Saen (Developer)**: UI/UX & Modern Dashboard
+
+---
+
+**Made with ❤️ for IPB Students. Smart Work, Better Future.**

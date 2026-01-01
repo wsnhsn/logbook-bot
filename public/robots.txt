@@ -1,0 +1,5 @@
+# IPB Student Portal Logbook Bot
+
+A web application to automate logbook submissions to IPB Student Portal.
+
+Visit: http://localhost:3000
