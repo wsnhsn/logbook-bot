@@ -65,7 +65,7 @@ export default function DonationFooter({ lang }: DonationFooterProps) {
                             <a href="https://github.com/Anro128" target="_blank" rel="noreferrer" className="w-8 h-8 rounded-lg border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] hover:border-[var(--prime)] hover:text-[var(--prime)] transition-all">
                                 <Github className="w-3.5 h-3.5" />
                             </a>
-                            <a href="https://linkedin.com/in/ahmad-nur-rohim" target="_blank" rel="noreferrer" className="w-8 h-8 rounded-lg border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] hover:border-[#0a66c2] hover:text-[#0a66c2] transition-all">
+                            <a href="https://www.linkedin.com/in/ahmad-nur-rohim-6065a4337" target="_blank" rel="noreferrer" className="w-8 h-8 rounded-lg border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] hover:border-[#0a66c2] hover:text-[#0a66c2] transition-all">
                                 <Linkedin className="w-3.5 h-3.5" />
                             </a>
                         </div>
