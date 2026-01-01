@@ -88,7 +88,7 @@ For developers who prefer terminal-based tools, check out the original **Termina
 
 ---
 
-## 📝 License
+## License
 This project is for educational purposes to help IPB University students manage their logbook entries more efficiently.
 
 ---
