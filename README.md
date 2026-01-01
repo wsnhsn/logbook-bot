@@ -1,8 +1,8 @@
 # 🤖 LOG-BOT SYSTEM v1.5.0
 ### Smart, Stateless, & Secure Logbook Automation for IPB Students
 
-[![Stateless Architecture](https://img.shields.io/badge/Architecture-Stateless-green.svg)](https://github.com/Anro128/IPB-Student-Portal-Logbook-Bot)
-[![Secure Data](https://img.shields.io/badge/Security-Memory--Only-blue.svg)](https://github.com/Anro128/IPB-Student-Portal-Logbook-Bot)
+[![Stateless Architecture](https://img.shields.io/badge/Architecture-Stateless-green.svg)](https://github.com/wsnhsn/logboot-bot)
+[![Secure Data](https://img.shields.io/badge/Security-Memory--Only-blue.svg)](https://github.com/wsnhsn/logboot-bot)
 [![Next.js 15](https://img.shields.io/badge/Frontend-Next.js%2015-black.svg)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
 
@@ -23,9 +23,11 @@
 
 ### 🎨 Modern Dashboard (Next.js 15)
 - **Glassmorphism UI**: A premium, translucent interface with smooth micro-animations.
+- **Dark/Light Theme**: Seamless theme switching with system preference detection.
 - **Progressive Feedback**: Real-time progress bars and success/failure tallies.
 - **Multi-Documentation Support**: Upload dozens of photos as a single batch directly to RAM.
 - **Dynamic Language Support**: Seamless switching between Indonesian and English.
+- **Responsive Design**: Perfect experience on mobile, tablet, and desktop.
 
 ---
 
@@ -36,34 +38,85 @@
 - **Python 3.10+**
 
 ### ⚙️ Installation
-1. `npm install`
-2. `pip install -r backend/requirements.txt`
+
+#### 1. Install Frontend Dependencies
+```bash
+npm install
+```
+
+#### 2. Install Backend Dependencies
+```bash
+pip install -r backend/requirements.txt
+```
+
+#### 3. Run Development Servers
+
+**Frontend (Terminal 1):**
+```bash
+npm run dev
+```
+
+**Backend (Terminal 2):**
+```bash
+cd backend
+python api.py
+```
+
+Frontend will be available at `http://localhost:3000`
 
 ---
 
 ## 🎯 How to Operate
-1. **Login** to Student Portal.
+1. **Login** to IPB Student Portal.
 2. **Find AktivitasId & Cookies** as guided in the dashboard.
-3. **Upload Manifest & Photos** directly to the secure memory buffer.
-4. **Execute** and watch real-time progress.
+3. **Upload Excel Manifest** with your logbook entries.
+4. **Upload Photo Documentation** for each entry.
+5. **Click Execute** and watch real-time progress.
+6. **Download Execution Log** after completion.
 
 ---
 
-## 🚢 Deployment Guide
-Since the system is now **fully stateless**, it can be deployed to high-performance cloud providers like Vercel (Frontend) and Railway (Backend) with zero storage configuration. See [DEPLOYMENT.md](file:///c:/INTERNSHIP/SPIL/IPB-Student-Portal-Logbook-Bot/DEPLOYMENT.md) for full instructions.
+### Recommended Deployment
+- **Frontend**: [Vercel](https://vercel.com) (Free)
+- **Backend**: [Railway](https://railway.app) or [Render](https://render.com) (Free Tier)
 
 ---
 
 ## 🛠️ Technology Stack
-- **Frontend**: Next.js 15 + Tailwind CSS
-- **Backend API**: FastAPI (Stateless logic)
-- **Data**: Pandas + Openpyxl
+
+### Frontend
+- **Next.js 15**: React framework with server-side rendering
+- **Tailwind CSS**: Utility-first CSS framework
+- **Lucide Icons**: Beautiful & consistent iconography
+- **React Hot Toast**: Elegant notifications
+
+### Backend
+- **FastAPI**: Modern Python web framework
+- **Pandas**: Data manipulation and analysis
+- **BeautifulSoup4**: HTML parsing for portal interaction
+- **Requests**: HTTP library for portal communication
+
+### Security
+- **In-Memory Processing**: Zero disk storage
+- **CORS Protection**: Controlled cross-origin requests
+- **Stateless Architecture**: No persistent session data
+
+---
+
+## 💻 Alternative CLI Version
+For developers who prefer terminal-based tools, check out the original **Terminal CLI version** at:
+👉 [IPB-Student-Portal-Logbook-Bot](https://github.com/Anro128/IPB-Student-Portal-Logbook-Bot)
 
 ---
 
 ## 👥 Development Team
-- **Anro (Developer)**: Core Logic & Bot Architecture
-- **Saen (Developer)**: UI/UX & Modern Dashboard
+- **Anro**: Core Logic & Bot Architecture | [GitHub](https://github.com/Anro128) | [LinkedIn](https://www.linkedin.com/in/ahmad-nur-rohim-6065a4337)
+- **Saen**: UI/UX & Modern Dashboard | [GitHub](https://github.com/wsnhsn) | [LinkedIn](https://linkedin.com/in/wisnu-al-hussaeni)
+
+---
+
+## 📝 License
+This project is for educational purposes to help IPB University students manage their logbook entries more efficiently.
 
 ---
 
