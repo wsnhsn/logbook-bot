@@ -2,11 +2,30 @@ import type { AppProps } from 'next/app'
 import { Toaster } from 'react-hot-toast'
 import { ThemeProvider } from 'next-themes'
 import '@/styles/globals.css'
+import Maintenance from '@/components/UI/Maintenance'
+import { useState, useEffect } from 'react'
 
 export default function App({ Component, pageProps }: AppProps) {
+  const isMaintenance = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true'
+  const [lang, setLang] = useState<'id' | 'en'>('id')
+
+  useEffect(() => {
+    const config = localStorage.getItem('logbook_config')
+    if (config) {
+      try {
+        const parsed = JSON.parse(config)
+        if (parsed.lang) setLang(parsed.lang)
+      } catch (e) { }
+    }
+  }, [])
+
   return (
     <ThemeProvider attribute="class" defaultTheme="dark">
-      <Component {...pageProps} />
+      {isMaintenance ? (
+        <Maintenance lang={lang} />
+      ) : (
+        <Component {...pageProps} />
+      )}
       <Toaster
         position="top-center"
         toastOptions={{
