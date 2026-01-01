@@ -13,8 +13,8 @@ import uuid
 
 app = FastAPI(title="IPB Student Portal Logbook Bot API")
 
-# CORS Configuration
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+# CORS Configuration - Broad for Production
+ALLOWED_ORIGINS = ["*"] 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
