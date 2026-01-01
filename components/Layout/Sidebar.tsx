@@ -26,7 +26,7 @@ export default function Sidebar({ theme, setTheme, lang, setLang, downloadTempla
             )}
 
             <aside className={`
-        fixed left-0 top-10 h-[calc(100vh-2.5rem)] w-[280px] glass border-r border-[var(--border)] z-50 flex flex-col p-8 overflow-y-auto custom-scrollbar
+        fixed left-0 top-10 bottom-0 w-[280px] glass border-r border-[var(--border)] z-50 flex flex-col p-8 overflow-y-auto custom-scrollbar
         transition-transform duration-300 lg:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
