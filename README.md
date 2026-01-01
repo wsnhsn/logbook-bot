@@ -1,12 +1,12 @@
-# 🤖 LOG-BOT SYSTEM v1.5.0
-### Smart, Stateless, & Secure Logbook Automation for IPB Students
+# LOGBOOK-BOT
+### Logbook Automation for IPB Students
 
 [![Stateless Architecture](https://img.shields.io/badge/Architecture-Stateless-green.svg)](https://github.com/wsnhsn/logboot-bot)
 [![Secure Data](https://img.shields.io/badge/Security-Memory--Only-blue.svg)](https://github.com/wsnhsn/logboot-bot)
 [![Next.js 15](https://img.shields.io/badge/Frontend-Next.js%2015-black.svg)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
 
-**LOG-BOT** is a high-performance automation suite designed to help IPB University students manage their Kampus Merdeka Logbook entries with surgical precision and absolute privacy. 
+**LOGBOOK-BOT** is a high-performance automation suite designed to help IPB University students manage their Kampus Merdeka Logbook entries with surgical precision and absolute privacy. 
 
 > [!IMPORTANT]
 > **V1.5.0 UPDATE: FULL STATELESS ENGINE**  
@@ -14,14 +14,14 @@
 
 ---
 
-## ✨ Features
+## Features
 
-### 🛡️ Security First (Stateless Engine)
+### Security First (Stateless Engine)
 - **Zero Disk Footprint**: No local storage for uploads or temporary files. Everything remains in-memory.
 - **Stateless Processing**: Your session data exists only during the transmission window.
 - **Transparency**: High-visibility security marquee ensures you know exactly how your data is handled.
 
-### 🎨 Modern Dashboard (Next.js 15)
+### Modern Dashboard (Next.js 15)
 - **Glassmorphism UI**: A premium, translucent interface with smooth micro-animations.
 - **Dark/Light Theme**: Seamless theme switching with system preference detection.
 - **Progressive Feedback**: Real-time progress bars and success/failure tallies.
@@ -31,13 +31,13 @@
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### 📋 Prerequisites
+### Prerequisites
 - **Node.js 20+** (LTS recommended)
 - **Python 3.10+**
 
-### ⚙️ Installation
+### Installation
 
 #### 1. Install Frontend Dependencies
 ```bash
@@ -66,7 +66,7 @@ Frontend will be available at `http://localhost:3000`
 
 ---
 
-## 🎯 How to Operate
+## How to Operate
 1. **Login** to IPB Student Portal.
 2. **Find AktivitasId & Cookies** as guided in the dashboard.
 3. **Upload Excel Manifest** with your logbook entries.
@@ -76,40 +76,13 @@ Frontend will be available at `http://localhost:3000`
 
 ---
 
-### Recommended Deployment
-- **Frontend**: [Vercel](https://vercel.com) (Free)
-- **Backend**: [Railway](https://railway.app) or [Render](https://render.com) (Free Tier)
-
----
-
-## 🛠️ Technology Stack
-
-### Frontend
-- **Next.js 15**: React framework with server-side rendering
-- **Tailwind CSS**: Utility-first CSS framework
-- **Lucide Icons**: Beautiful & consistent iconography
-- **React Hot Toast**: Elegant notifications
-
-### Backend
-- **FastAPI**: Modern Python web framework
-- **Pandas**: Data manipulation and analysis
-- **BeautifulSoup4**: HTML parsing for portal interaction
-- **Requests**: HTTP library for portal communication
-
-### Security
-- **In-Memory Processing**: Zero disk storage
-- **CORS Protection**: Controlled cross-origin requests
-- **Stateless Architecture**: No persistent session data
-
----
-
-## 💻 Alternative CLI Version
+## Alternative CLI Version
 For developers who prefer terminal-based tools, check out the original **Terminal CLI version** at:
-👉 [IPB-Student-Portal-Logbook-Bot](https://github.com/Anro128/IPB-Student-Portal-Logbook-Bot)
+ [IPB-Student-Portal-Logbook-Bot](https://github.com/Anro128/IPB-Student-Portal-Logbook-Bot)
 
 ---
 
-## 👥 Development Team
+## Development Team
 - **Anro**: Core Logic & Bot Architecture | [GitHub](https://github.com/Anro128) | [LinkedIn](https://www.linkedin.com/in/ahmad-nur-rohim-6065a4337)
 - **Saen**: UI/UX & Modern Dashboard | [GitHub](https://github.com/wsnhsn) | [LinkedIn](https://linkedin.com/in/wisnu-al-hussaeni)
 
