@@ -1,5 +1,5 @@
 // @ts-ignore
-import { Heart, ChevronRight, ShieldCheck, Zap, Github, Linkedin } from 'lucide-react'
+import { Heart, ChevronRight, ShieldCheck, Zap, Terminal, Github, Linkedin } from 'lucide-react'
 import { Language, translations } from '../../utils/translations'
 
 interface DonationFooterProps {
@@ -11,7 +11,7 @@ export default function DonationFooter({ lang }: DonationFooterProps) {
 
     return (
         <div className="mt-16 flex flex-col items-center">
-            <div className="w-full grid lg:grid-cols-2 gap-8 items-stretch">
+            <div className="w-full grid lg:grid-cols-3 gap-8 items-stretch">
                 {/* Card 1: Support Developer */}
                 <div className="card p-6 bg-[var(--prime-bg)] border-[var(--prime)]/10">
                     <div className="flex items-center gap-4 mb-4">
@@ -40,7 +40,30 @@ export default function DonationFooter({ lang }: DonationFooterProps) {
                     </div>
                 </div>
 
-                {/* Card 2: Manifest Engine */}
+                {/* Card 2: Terminal CLI Version */}
+                <div className="card p-6 bg-gradient-to-br from-emerald-500/5 to-cyan-500/5 border-emerald-500/20">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="p-2.5 rounded-xl bg-emerald-500/10">
+                            <Terminal className="w-5 h-5 text-emerald-500" />
+                        </div>
+                        <h3 className="text-[11px] font-black text-[var(--text-primary)] uppercase tracking-wider">{t.terminal_card_title}</h3>
+                    </div>
+                    <p className="text-[11px] text-[var(--text-muted)] lg:text-[13px] leading-relaxed mb-6 uppercase tracking-tighter">
+                        {t.terminal_card_desc}
+                    </p>
+                    <a
+                        href="https://github.com/Anro128/IPB-Student-Portal-Logbook-Bot"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-3 px-6 h-11 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-[11px] font-black uppercase tracking-widest transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:scale-105"
+                    >
+                        <Github className="w-4 h-4" />
+                        {t.terminal_card_cta}
+                        <ChevronRight className="w-4 h-4 opacity-70" />
+                    </a>
+                </div>
+
+                {/* Card 3: Manifest Engine */}
                 <div className="card p-6 flex items-center gap-6">
                     <div className="w-16 h-16 rounded-2xl bg-black/5 dark:bg-white/5 border border-[var(--border)] flex items-center justify-center shrink-0">
                         <Zap className="w-8 h-8 text-[var(--prime)] animate-pulse" />

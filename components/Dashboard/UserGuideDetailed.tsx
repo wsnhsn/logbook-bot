@@ -122,7 +122,7 @@ export default function UserGuideDetailed({ lang, downloadTemplate }: UserGuideD
                                     {step.subSteps.map((sub, i) => (
                                         <div key={i} className="flex items-start gap-3 text-[11px] text-[var(--text-primary)] font-bold uppercase tracking-tight">
                                             <div className="mt-0.5 text-[var(--prime)] shrink-0">{sub.icon}</div>
-                                            <span className="truncate" title={sub.text}>{sub.text}</span>
+                                            <span className="break-words leading-relaxed">{sub.text}</span>
                                         </div>
                                     ))}
                                 </div>

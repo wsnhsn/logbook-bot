@@ -31,10 +31,9 @@ async def log_requests(request, call_next):
     return response
 
 # In-Memory Storage (Stateless)
-# This replaces the 'uploads/' and 'attachments/' folders
 IN_MEMORY_STORAGE = {
-    "manifests": {},    # {uuid + filename: bytes}
-    "attachments": {}   # {filename: bytes}
+    "manifests": {},    
+    "attachments": {}  
 }
 
 # Global state for submission progress
