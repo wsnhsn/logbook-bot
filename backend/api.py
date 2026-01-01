@@ -18,10 +18,17 @@ ALLOWED_ORIGINS = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=False, # Must be False if allow_origins includes "*"
+    allow_credentials=False, 
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def log_requests(request, call_next):
+    print(f"DEBUG: Incoming request {request.method} {request.url}")
+    response = await call_next(request)
+    print(f"DEBUG: Response status {response.status_code}")
+    return response
 
 # In-Memory Storage (Stateless)
 # This replaces the 'uploads/' and 'attachments/' folders
@@ -285,6 +292,7 @@ async def read_root(): return {"message": "IPB Logbook Bot API (Stateless)", "ve
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
+    print(f"DEBUG: Received manifest upload: {file.filename}")
     try:
         content = await file.read()
         if not file.filename.lower().endswith(('.xlsx', '.xls', '.csv')):
@@ -307,6 +315,7 @@ async def upload_file(file: UploadFile = File(...)):
 
 @app.post("/upload-attachments")
 async def upload_attachments(files: List[UploadFile] = File(...)):
+    print(f"DEBUG: Received {len(files)} attachments for upload")
     try:
         count = 0
         filenames = []
@@ -332,7 +341,7 @@ async def get_status(): return submission_state
 async def download_template():
     template = {
         'Waktu': ['11/08/2024'], 'Tstart': ['09:00'], 'Tend': ['11:00'],
-        'JenisLogId': [1], 'DosenPenggerak': ['196412041991032001'],
+        'JenisLogId': [1], 'DosenPenggerak': ['123456789'],
         'IsLuring': [1], 'Lokasi': ['Room A'], 'Keterangan': ['Desc'], 'FilePath': ['foto.png']
     }
     df = pd.DataFrame(template)
