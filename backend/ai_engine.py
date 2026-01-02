@@ -2,9 +2,6 @@ import random
 import os
 import difflib
 
-# Deskripsi elaboratif, formal, dan mendetail yang siap disintesis.
-# Cakupan: Seluruh disiplin ilmu akademik dan industri profesional.
-
 KEYWORDS_MAP = {
     # == TEKNOLOGI, REKAYASA & IT ==
     "coding": [
