@@ -164,47 +164,59 @@ export default function Home() {
   }
 
   const handleSubmit = async () => {
-    if (!uploadedFile) return toast.error(lang === 'id' ? 'File manifest diperlukan' : 'Manifest file required')
-    if (!aktivitasId) return toast.error(lang === 'id' ? 'AktivitasID diperlukan' : 'Activity ID required')
-    if (!cookies) return toast.error(lang === 'id' ? 'Cookies diperlukan' : 'Cookies required')
+    // Stage 1: Validation in step order
+    if (!cookies || !aktivitasId) return toast.error((t as any).err_step1)
+    if (!uploadedFile) return toast.error((t as any).err_step2)
+    if (attachments.length === 0) return toast.error((t as any).err_step3)
 
-    try {
-      await axios.post('/api/submit', {
-        aktivitas_id: aktivitasId,
-        cookies_string: cookies,
-        manifest_id: uploadedFile.server_filename
-      })
-      setStatus({ is_running: true, progress: 0, total: uploadedFile.total_rows, current_row: 0, results: [], message: lang === 'id' ? 'Menginisialisasi...' : 'Initializing...' })
-      setResults([])
-      toast.success(lang === 'id' ? 'Proses Dimulai' : 'Process Started')
-    } catch (error: any) {
-      toast.error(error.response?.data?.detail || 'Eksekusi Gagal')
-    }
+    const promise = axios.post('/api/submit', {
+      aktivitas_id: aktivitasId,
+      cookies_string: cookies,
+      manifest_id: uploadedFile.server_filename
+    })
+
+    toast.promise(promise, {
+      loading: lang === 'id' ? 'Menghubungkan ke Portal...' : 'Connecting to Portal...',
+      success: (res) => {
+        setStatus({
+          is_running: true,
+          progress: 0,
+          total: (uploadedFile as any).total_rows,
+          current_row: 0,
+          results: [],
+          message: lang === 'id' ? 'Menginisialisasi...' : 'Initializing...'
+        })
+        setResults([])
+        return lang === 'id' ? 'Proses Dimulai' : 'Process Started'
+      },
+      error: (err) => err.response?.data?.detail || (lang === 'id' ? 'Gagal memulai proses' : 'Failed to start process')
+    })
   }
 
   const resetSubmission = async () => {
-    try {
-      await axios.post('/api/reset')
-      setStatus(null)
-      setResults([])
-      setUploadedFile(null)
-      setAttachments([])
-      setAktivitasId('')
-      setCookies('')
+    const promise = axios.post('/api/reset')
 
-      // Update localStorage to remove everything except language
-      localStorage.setItem('logbook_config', JSON.stringify({
-        aktivitasId: '',
-        cookies: '',
-        lang: lang,
-        uploadedFile: null,
-        attachments: []
-      }))
+    toast.promise(promise, {
+      loading: lang === 'id' ? 'Membersihkan Cache...' : 'Clearing Cache...',
+      success: () => {
+        setStatus(null)
+        setResults([])
+        setUploadedFile(null)
+        setAttachments([])
+        setAktivitasId('')
+        setCookies('')
 
-      toast.success(lang === 'id' ? 'Seluruh Cache Berhasil Direset' : 'All Cache Successfully Reset')
-    } catch (e) {
-      toast.error('Gagal mereset state')
-    }
+        localStorage.setItem('logbook_config', JSON.stringify({
+          aktivitasId: '',
+          cookies: '',
+          lang: lang,
+          uploadedFile: null,
+          attachments: []
+        }))
+        return lang === 'id' ? 'Seluruh Cache Berhasil Direset' : 'All Cache Successfully Reset'
+      },
+      error: lang === 'id' ? 'Gagal mereset state' : 'Failed to reset state'
+    })
   }
 
   const downloadTemplate = () => {

@@ -112,15 +112,31 @@ def load_dataframe_from_bytes(file_bytes: bytes, filename: str) -> pd.DataFrame:
     print(f"Loading dataframe from: {filename}")
     try:
         if filename.lower().endswith('.csv'):
-            return pd.read_csv(file_io)
+            df = pd.read_csv(file_io)
         else:
             try:
                 # Primary attempt: openpyxl
-                return pd.read_excel(file_io, sheet_name='Sheet1', engine='openpyxl')
+                df = pd.read_excel(file_io, sheet_name='Sheet1', engine='openpyxl')
             except Exception as e:
                 print(f"Sheet1 failed, trying default: {str(e)}")
                 file_io.seek(0)
-                return pd.read_excel(file_io, engine='openpyxl')
+                df = pd.read_excel(file_io, engine='openpyxl')
+        
+        # --- DATA NORMALIZATION ---
+        # 1. Normalize Date (Waktu) to DD/MM/YYYY
+        if 'Waktu' in df.columns:
+            # Handle mixed formats (strings and datetime objects)
+            df['Waktu'] = pd.to_datetime(df['Waktu'], dayfirst=True, errors='coerce').dt.strftime('%d/%m/%Y')
+            # Fill NaN (failures) with empty string to avoid processing errors
+            df['Waktu'] = df['Waktu'].fillna('')
+
+        # 2. Normalize Time (Tstart, Tend) to HH:MM
+        for col in ['Tstart', 'Tend']:
+            if col in df.columns:
+                # Convert to string and take first 5 chars if it's longer (e.g., HH:MM:SS)
+                df[col] = df[col].astype(str).str.strip().apply(lambda x: x[:5] if ':' in x else x)
+        
+        return df
     except Exception as e:
         print(f"Dataframe load error: {str(e)}")
         raise e

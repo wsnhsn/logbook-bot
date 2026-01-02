@@ -165,7 +165,7 @@ export default function VisualAnalytics({ lang, records }: VisualAnalyticsProps)
                     <span className="text-3xl font-black italic tracking-tighter text-[var(--text-primary)]">
                         {avgPerDay}
                     </span>
-                    <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Recs</span>
+                    <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Recs/Day</span>
                 </div>
 
                 <div className="mt-4 flex items-end gap-1 h-8 opacity-50">

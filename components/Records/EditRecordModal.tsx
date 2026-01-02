@@ -66,8 +66,7 @@ export default function EditRecordModal({ record, onSave, onClose, lang }: EditR
         setIsGenerating(true)
         setAiStatus('loading')
         try {
-            const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:8000' : ''
-            const response = await fetch(`${baseUrl}/generate-ai`, {
+            const response = await fetch('/api/generate-ai', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -237,9 +236,9 @@ export default function EditRecordModal({ record, onSave, onClose, lang }: EditR
                                 onClick={handleAIRefine}
                                 disabled={isGenerating || !formData.Keterangan.trim()}
                                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${aiStatus === 'success' ? 'bg-green-500/20 text-green-500' :
-                                        aiStatus === 'error' ? 'bg-red-500/20 text-red-500' :
-                                            isGenerating ? 'bg-blue-500/10 text-blue-500 animate-pulse' :
-                                                'bg-[var(--prime-bg)] text-[var(--prime)] hover:scale-105 active:scale-95'
+                                    aiStatus === 'error' ? 'bg-red-500/20 text-red-500' :
+                                        isGenerating ? 'bg-blue-500/10 text-blue-500 animate-pulse' :
+                                            'bg-[var(--prime-bg)] text-[var(--prime)] hover:scale-105 active:scale-95'
                                     } disabled:opacity-50 disabled:grayscale disabled:scale-100`}
                             >
                                 <SparklesIcon />
