@@ -116,6 +116,13 @@ export default function DataIngestion({
                     </div>
                 </div>
             )}
+
+            <div className="mt-8 p-5 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex items-start gap-5">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                <p className="text-[11px] text-blue-500/80 font-medium leading-relaxed uppercase tracking-wider italic">
+                    {t.template_hint}
+                </p>
+            </div>
         </section>
     )
 }

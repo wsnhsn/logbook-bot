@@ -144,9 +144,9 @@ export default function UserGuideDetailed({ lang, downloadTemplate }: UserGuideD
                     ))}
                 </div>
 
-                <div className="mt-8 flex items-center gap-4 px-5 py-4 rounded-xl bg-yellow-500/5 border border-yellow-500/10">
-                    <Info className="w-5 h-5 text-yellow-500 shrink-0" />
-                    <p className="text-[11px] text-yellow-500/80 font-black uppercase tracking-widest leading-relaxed">
+                <div className="mt-8 flex items-center gap-5 px-5 py-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                    <p className="text-[11px] text-blue-500/80 font-black uppercase tracking-widest leading-relaxed">
                         {t.succ_notice}
                     </p>
                 </div>

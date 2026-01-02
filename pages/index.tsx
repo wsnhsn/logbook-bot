@@ -17,6 +17,7 @@ import DocumentationBuffer from '@/components/Dashboard/DocumentationBuffer'
 import ExecutionContext from '@/components/Dashboard/ExecutionContext'
 import ExecutionDashboard from '@/components/Dashboard/ExecutionDashboard'
 import DonationFooter from '@/components/Dashboard/DonationFooter'
+import AssistantBuddy from '@/components/Assistant/AssistantBuddy'
 import { Record } from '@/types/record'
 
 // Types
@@ -24,6 +25,7 @@ interface UploadResponse {
   filename: string
   server_filename: string
   total_rows: number
+  expected_files?: string[]
 }
 
 interface SubmissionStatus {
@@ -52,6 +54,12 @@ export default function Home() {
   const [cookies, setCookies] = useState('')
   const [status, setStatus] = useState<SubmissionStatus | null>(null)
   const [results, setResults] = useState<any[]>([])
+
+  // Login Mode State
+  const [loginMode, setLoginMode] = useState<'manual' | 'auto'>('manual')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
 
   const t = translations[lang]
 
@@ -128,9 +136,47 @@ export default function Home() {
 
   const handleAttachmentsUpload = async (files: FileList) => {
     if (!files || files.length === 0) return
+
+    // Validation
+    const allowedExtensions = ['png', 'jpg', 'jpeg']
+    const invalidFormatFiles: string[] = []
+    const mismatchFiles: string[] = []
+    const validFiles: File[] = []
+
+    Array.from(files).forEach(file => {
+      const ext = file.name.split('.').pop()?.toLowerCase() || ''
+      if (!allowedExtensions.includes(ext)) {
+        invalidFormatFiles.push(file.name)
+        return
+      }
+
+      if (uploadedFile?.expected_files) {
+        if (!uploadedFile.expected_files.includes(file.name)) {
+          mismatchFiles.push(file.name)
+          return
+        }
+      }
+
+      validFiles.push(file)
+    })
+
+    if (invalidFormatFiles.length > 0) {
+      toast.error(lang === 'id'
+        ? `Format tidak didukung (.png/.jpg saja): ${invalidFormatFiles.slice(0, 2).join(', ')}${invalidFormatFiles.length > 2 ? '...' : ''}`
+        : `Unsupported format (.png/.jpg only): ${invalidFormatFiles.slice(0, 2).join(', ')}${invalidFormatFiles.length > 2 ? '...' : ''}`)
+    }
+
+    if (mismatchFiles.length > 0) {
+      toast.error(lang === 'id'
+        ? `Nama file tidak ada di Excel: ${mismatchFiles.slice(0, 2).join(', ')}${mismatchFiles.length > 2 ? '...' : ''}`
+        : `Filename not found in Excel: ${mismatchFiles.slice(0, 2).join(', ')}${mismatchFiles.length > 2 ? '...' : ''}`)
+    }
+
+    if (validFiles.length === 0) return
+
     setIsUploadingAttachments(true)
     const formData = new FormData()
-    Array.from(files).forEach(file => {
+    validFiles.forEach(file => {
       formData.append('files', file)
     })
     try {
@@ -193,6 +239,25 @@ export default function Home() {
     })
   }
 
+  const handleLogin = async () => {
+    if (!username || !password) return
+    setIsLoggingIn(true)
+    try {
+      const response = await axios.post('/api/login', { username, password })
+      if (response.data.success) {
+        setCookies(response.data.cookies)
+        toast.success(t.login_success)
+        // Switch to manual mode so user can see the cookies or just stay in auto
+      } else {
+        toast.error(response.data.message || t.login_error)
+      }
+    } catch (e: any) {
+      toast.error(t.login_error)
+    } finally {
+      setIsLoggingIn(false)
+    }
+  }
+
   const resetSubmission = async () => {
     const promise = axios.post('/api/reset')
 
@@ -205,6 +270,8 @@ export default function Home() {
         setAttachments([])
         setAktivitasId('')
         setCookies('')
+        setUsername('')
+        setPassword('')
 
         localStorage.setItem('logbook_config', JSON.stringify({
           aktivitasId: '',
@@ -273,6 +340,14 @@ export default function Home() {
                   setAktivitasId={setAktivitasId}
                   cookies={cookies}
                   setCookies={setCookies}
+                  loginMode={loginMode}
+                  setLoginMode={setLoginMode}
+                  username={username}
+                  setUsername={setUsername}
+                  password={password}
+                  setPassword={setPassword}
+                  handleLogin={handleLogin}
+                  isLoggingIn={isLoggingIn}
                 />
 
                 <DataIngestion
@@ -314,6 +389,7 @@ export default function Home() {
       </div>
 
       <ScrollToTop />
+      <AssistantBuddy lang={lang} />
 
       <style jsx global>{`
         :root {

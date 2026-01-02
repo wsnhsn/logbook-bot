@@ -70,7 +70,7 @@ export default function DonationFooter({ lang }: DonationFooterProps) {
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="text-[11px] font-black text-[var(--prime)] uppercase tracking-[0.2em] mb-1.5">Manifest Engine</div>
-                        <h4 className="text-[13px] font-black text-[var(--text-primary)] tracking-tighter uppercase italic">LOG-BOT SYSTEM v1.5.0</h4>
+                        <h4 className="text-[13px] font-black text-[var(--text-primary)] tracking-tighter uppercase italic">{t.engine_version}</h4>
                         <p className="text-[11px] text-[var(--text-muted)] mt-1.5 font-mono uppercase tracking-widest leading-relaxed border-l-2 border-[var(--prime)]/30 pl-4">
                             Automated Student Protocol Suite <br />
                             IPB University Standardized SOE

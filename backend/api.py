@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import Optional, List, Dict
 import uuid
 import ai_engine
+import assistant_logic
 
 app = FastAPI(title="IPB Student Portal Logbook Bot API")
 
@@ -57,6 +58,14 @@ class SubmitRequest(BaseModel):
 
 class PromptRequest(BaseModel):
     prompt: str
+    lang: str = "id"
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+class AssistantRequest(BaseModel):
+    query: str
     lang: str = "id"
 
 # ============== COOKIE PARSING ==============
@@ -348,6 +357,18 @@ async def upload_file(file: UploadFile = File(...)):
         IN_MEMORY_STORAGE["manifests"][manifest_id] = content
         
         df = load_dataframe_from_bytes(content, file.filename)
+        
+        # Header Validation
+        required_columns = ['Waktu', 'Tstart', 'Tend', 'JenisLogId', 'IsLuring', 'Lokasi', 'Keterangan', 'FilePath']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise HTTPException(status_code=400, detail=f"Invalid Template! Missing columns: {', '.join(missing_columns)}")
+
+        # Extract expected filenames (basename only)
+        # We use os.path.basename because FilePath might be a path or just a filename
+        import os
+        expected_files = df['FilePath'].dropna().astype(str).map(lambda x: os.path.basename(x.strip())).unique().tolist()
+
         preview = []
         for idx, row in df.head(5).iterrows():
             preview.append({
@@ -355,7 +376,14 @@ async def upload_file(file: UploadFile = File(...)):
                 'Tstart': str(row.get('Tstart', '')), 'Tend': str(row.get('Tend', ''))
             })
         
-        return {'success': True, 'server_filename': manifest_id, 'filename': file.filename, 'total_rows': len(df), 'preview': preview}
+        return {
+            'success': True, 
+            'server_filename': manifest_id, 
+            'filename': file.filename, 
+            'total_rows': len(df), 
+            'preview': preview,
+            'expected_files': expected_files
+        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -406,6 +434,67 @@ async def reset_state():
         IN_MEMORY_STORAGE["attachments"].clear()
         return {"success": True}
     return {"success": False, "message": "Bot is running"}
+
+@app.post("/login")
+async def login(request: LoginRequest):
+    """
+    Automated login to IPB Student Portal to retrieve cookies.
+    """
+    session = requests.Session()
+    login_url = "https://studentportal.ipb.ac.id/Account/Login"
+    
+    try:
+        # 1. Get Login Page to extract CSRF Token
+        response = session.get(login_url, timeout=10)
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        token_input = soup.find('input', {'name': '__RequestVerificationToken'})
+        if not token_input:
+            # Try finding it in another way or maybe it's not required
+            token = ""
+        else:
+            token = token_input.get('value', '')
+
+        # 2. Perform Login
+        payload = {
+            "Username": request.username,
+            "Password": request.password,
+            "__RequestVerificationToken": token,
+            "RememberMe": "false"
+        }
+        
+        # IPB Portal usually redirects or returns 200 with success info
+        login_response = session.post(login_url, data=payload, timeout=15)
+        
+        # 3. Extract Cookies
+        cookies_dict = session.cookies.get_dict()
+        auth_cookie = cookies_dict.get('.AspNetCore.Cookies')
+        
+        if auth_cookie:
+            return {
+                "success": True, 
+                "cookies": auth_cookie,
+                "full_cookies": "; ".join([f"{k}={v}" for k, v in cookies_dict.items()])
+            }
+        else:
+            # Check for error messages in HTML
+            error_soup = BeautifulSoup(login_response.text, 'html.parser')
+            val_summary = error_soup.find('div', {'class': 'validation-summary-errors'})
+            error_msg = val_summary.text.strip() if val_summary else "Authentication failed. Invalid credentials or portal blocked bot access."
+            return {"success": False, "message": error_msg}
+            
+    except Exception as e:
+        print(f"Login error: {str(e)}")
+        return {"success": False, "message": f"Connection error: {str(e)}"}
+
+@app.post("/assistant")
+async def assistant_query(request: AssistantRequest):
+    """
+    Handle user guide queries from the Assistant Buddy.
+    """
+    response = assistant_logic.get_assistant_response(request.query, request.lang)
+    return {"success": True, "response": response}
 
 @app.get("/records")
 async def get_records():
