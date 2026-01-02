@@ -70,7 +70,26 @@ export default function RecordsPage() {
         setLoading(true)
         try {
             const response = await axios.get<{ success: boolean; records: Record[]; count: number }>('/api/records')
-            setRecords(response.data.records)
+            const fetchedRecords = response.data.records
+            setRecords(fetchedRecords)
+
+            // Sync with localStorage so Dashboard reflects the current state
+            const stored = localStorage.getItem('logbook_config')
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored)
+                    if (fetchedRecords.length === 0) {
+                        // If no records left, clear the uploadedFile state
+                        parsed.uploadedFile = null
+                    } else if (parsed.uploadedFile) {
+                        // Update the row count metadata
+                        parsed.uploadedFile.total_rows = fetchedRecords.length
+                    }
+                    localStorage.setItem('logbook_config', JSON.stringify(parsed))
+                } catch (e) {
+                    console.error('Error syncing localStorage:', e)
+                }
+            }
         } catch (error) {
             console.error('Error fetching records:', error)
             toast.error(lang === 'id' ? 'Gagal memuat data' : 'Failed to load data')
@@ -163,8 +182,8 @@ export default function RecordsPage() {
                     onClose={() => setIsMobileMenuOpen(false)}
                 />
 
-                <main className="flex-1 lg:ml-[280px] transition-all pt-20 lg:pt-8 min-w-0 overflow-hidden">
-                    <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12 py-8 space-y-6 w-full">
+                <main className="flex-1 lg:ml-[280px] transition-all pt-20 lg:pt-8 min-w-0">
+                    <div className="w-full mx-auto px-6 sm:px-10 lg:px-12 py-8 space-y-6">
                         {/* Header Section */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-[var(--border)]">
                             <div className="flex items-center gap-6">

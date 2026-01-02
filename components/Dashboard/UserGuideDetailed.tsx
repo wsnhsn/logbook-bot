@@ -34,11 +34,16 @@ export default function UserGuideDetailed({ lang, downloadTemplate }: UserGuideD
             id: '02',
             title: t.step2_title,
             desc: (
-                <div className="space-y-2">
+                <div className="space-y-3">
                     <p>{t.step2_desc}</p>
-                    <p className="text-[10px] text-[var(--prime)] font-black uppercase tracking-widest bg-[var(--prime-bg)] inline-block px-3 py-1 rounded-lg border border-[var(--prime)]/20">
-                        💡 {t.edit_guide_link}
-                    </p>
+                    <div className="flex flex-col gap-2">
+                        <p className="text-[10px] text-[var(--prime)] font-black uppercase tracking-widest bg-[var(--prime-bg)] inline-block px-3 py-1 rounded-lg border border-[var(--prime)]/20 self-start">
+                            {t.edit_guide_link}
+                        </p>
+                        <p className="text-[10px] text-[var(--prime)] font-black uppercase tracking-widest bg-[var(--prime-bg)] inline-block px-3 py-1 rounded-lg border border-[var(--prime)]/20 self-start">
+                            {t.ai_beta_hint}
+                        </p>
+                    </div>
                 </div>
             ),
             icon: <FileText className="w-4 h-4" />,

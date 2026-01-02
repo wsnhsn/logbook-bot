@@ -39,8 +39,8 @@ export default function RecordsTable({ records, onEdit, onDelete, lang, loading 
     }
 
     return (
-        <div className="glass rounded-2xl overflow-hidden border border-[var(--border)]">
-            <div className="overflow-x-auto custom-scrollbar">
+        <div className="glass rounded-2xl border border-[var(--border)]">
+            <div className="overflow-x-auto lg:overflow-x-visible custom-scrollbar">
                 <table className="w-full">
                     <thead>
                         <tr className="bg-black/[0.03] dark:bg-white/[0.02] border-b border-[var(--border)]">
@@ -125,10 +125,10 @@ export default function RecordsTable({ records, onEdit, onDelete, lang, loading 
                                         ID: {record.Dosen}
                                     </span>
                                 </td>
-                                <td className="px-6 py-4 text-sm text-[var(--text-secondary)] max-w-[200px] truncate">
+                                <td className="px-6 py-4 text-sm text-[var(--text-secondary)] min-w-[200px] whitespace-normal leading-relaxed">
                                     {record.Lokasi}
                                 </td>
-                                <td className="px-6 py-4 text-sm text-[var(--text-secondary)] max-w-[250px] truncate">
+                                <td className="px-6 py-4 text-sm text-[var(--text-secondary)] min-w-[250px] whitespace-normal leading-relaxed">
                                     {record.Keterangan}
                                 </td>
                                 <td className="px-6 py-4 text-sm text-[var(--text-secondary)] font-mono text-xs">

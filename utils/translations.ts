@@ -121,6 +121,7 @@ export const translations = {
         page_next: "Selanjutnya",
         showing_records: "Menampilkan {start}-{end} dari {total} data",
         edit_guide_link: "Data sudah terupload? Anda bisa mengedit atau menghapusnya langsung di halaman 'Kelola Data'.",
+        ai_beta_hint: "Fitur edit kini mendukung 'AI Refine' untuk mempercantik deskripsi kegiatan (Versi Beta). Mohon maaf jika hasil penciptaan kalimat terkadang kurang sesuai.",
     },
     en: {
         system_hub: "System Hub",
@@ -241,6 +242,7 @@ export const translations = {
         page_prev: "Previous",
         page_next: "Next",
         showing_records: "Showing {start}-{end} of {total} records",
-        edit_guide_link: "Already uploaded data? You can edit or delete it directly on the 'Manage Data' page."
+        edit_guide_link: "Already uploaded data? You can edit or delete it directly on the 'Manage Data' page.",
+        ai_beta_hint: "The edit feature now supports 'AI Refine' to enhance your activity descriptions (Beta Version). We apologize if the generated sentences are sometimes inaccurate.",
     }
 }

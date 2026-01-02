@@ -17,6 +17,16 @@ const SaveIcon = () => (
     </svg>
 )
 
+const SparklesIcon = () => (
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z" />
+        <path d="M5 3l1 1" />
+        <path d="M19 3l-1 1" />
+        <path d="M5 21l1-1" />
+        <path d="M19 21l-1-1" />
+    </svg>
+)
+
 interface EditRecordModalProps {
     record: Record
     onSave: (updatedRecord: Partial<Record>) => void
@@ -38,6 +48,9 @@ export default function EditRecordModal({ record, onSave, onClose, lang }: EditR
         Dosen: record.Dosen
     })
 
+    const [isGenerating, setIsGenerating] = useState(false)
+    const [aiStatus, setAiStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         onSave(formData)
@@ -45,6 +58,38 @@ export default function EditRecordModal({ record, onSave, onClose, lang }: EditR
 
     const handleChange = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }))
+    }
+
+    const handleAIRefine = async () => {
+        if (!formData.Keterangan.trim() || isGenerating) return
+
+        setIsGenerating(true)
+        setAiStatus('loading')
+        try {
+            const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:8000' : ''
+            const response = await fetch(`${baseUrl}/generate-ai`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: formData.Keterangan,
+                    lang: lang
+                })
+            })
+
+            const data = await response.json()
+            if (data.success) {
+                setFormData(prev => ({ ...prev, Keterangan: data.result }))
+                setAiStatus('success')
+                setTimeout(() => setAiStatus('idle'), 2000)
+            } else {
+                setAiStatus('error')
+            }
+        } catch (error) {
+            console.error('AI Refinement error:', error)
+            setAiStatus('error')
+        } finally {
+            setIsGenerating(false)
+        }
     }
 
     return (
@@ -183,15 +228,30 @@ export default function EditRecordModal({ record, onSave, onClose, lang }: EditR
 
                     {/* Keterangan */}
                     <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wide text-[var(--text-muted)] mb-1.5">
-                            {lang === 'id' ? 'Keterangan Kegiatan' : 'Activity Description'}
-                        </label>
+                        <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-[11px] font-bold uppercase tracking-wide text-[var(--text-muted)]">
+                                {lang === 'id' ? 'Keterangan Kegiatan' : 'Activity Description'}
+                            </label>
+                            <button
+                                type="button"
+                                onClick={handleAIRefine}
+                                disabled={isGenerating || !formData.Keterangan.trim()}
+                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${aiStatus === 'success' ? 'bg-green-500/20 text-green-500' :
+                                        aiStatus === 'error' ? 'bg-red-500/20 text-red-500' :
+                                            isGenerating ? 'bg-blue-500/10 text-blue-500 animate-pulse' :
+                                                'bg-[var(--prime-bg)] text-[var(--prime)] hover:scale-105 active:scale-95'
+                                    } disabled:opacity-50 disabled:grayscale disabled:scale-100`}
+                            >
+                                <SparklesIcon />
+                                {isGenerating ? t.ai_generating : aiStatus === 'success' ? t.ai_success : aiStatus === 'error' ? t.ai_error : t.ai_refine}
+                            </button>
+                        </div>
                         <textarea
                             value={formData.Keterangan}
                             onChange={(e) => handleChange('Keterangan', e.target.value)}
                             className="input-field w-full min-h-[70px] resize-none"
                             rows={3}
-                            placeholder={lang === 'id' ? 'Deskripsi singkat kegiatan...' : 'Brief activity description...'}
+                            placeholder={t.ai_prompt_hint}
                         />
                     </div>
 

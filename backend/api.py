@@ -10,6 +10,7 @@ import os
 from datetime import datetime
 from typing import Optional, List, Dict
 import uuid
+import ai_engine
 
 app = FastAPI(title="IPB Student Portal Logbook Bot API")
 
@@ -53,6 +54,10 @@ class SubmitRequest(BaseModel):
     aktivitas_id: str
     cookies_string: str
     manifest_id: str
+
+class PromptRequest(BaseModel):
+    prompt: str
+    lang: str = "id"
 
 # ============== COOKIE PARSING ==============
 
@@ -481,6 +486,22 @@ async def delete_record(manifest_id: str, row_index: int):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/generate-ai")
+async def generate_ai(request: PromptRequest):
+    """
+    Generate or refine activity descriptions using the AI Engine module.
+    """
+    prompt = request.prompt.strip()
+    if not prompt:
+        return {"success": False, "message": "Prompt is empty"}
+
+    try:
+        refined_text = ai_engine.get_ai_refinement(prompt, request.lang)
+        return {"success": True, "result": refined_text}
+    except Exception as e:
+        print(f"AI Engine Error: {str(e)}")
+        return {"success": False, "message": str(e)}
 
 if __name__ == "__main__":
     import uvicorn
