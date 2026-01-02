@@ -1,21 +1,23 @@
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
+// @ts-ignore
 import { Toaster, toast } from 'react-hot-toast'
 import axios from 'axios'
 import { useTheme } from 'next-themes'
-import { Language, translations } from '../utils/translations'
+import { Language, translations } from '@/utils/translations'
 
 // Components
-import Sidebar from '../components/Layout/Sidebar'
-import Header from '../components/Dashboard/Header'
-import SecurityMarquee from '../components/UI/SecurityMarquee'
-import ScrollToTop from '../components/UI/ScrollToTop'
-import UserGuideDetailed from '../components/Dashboard/UserGuideDetailed'
-import DataIngestion from '../components/Dashboard/DataIngestion'
-import DocumentationBuffer from '../components/Dashboard/DocumentationBuffer'
-import ExecutionContext from '../components/Dashboard/ExecutionContext'
-import ExecutionDashboard from '../components/Dashboard/ExecutionDashboard'
-import DonationFooter from '../components/Dashboard/DonationFooter'
+import Sidebar from '@/components/Layout/Sidebar'
+import Header from '@/components/Dashboard/Header'
+import SecurityMarquee from '@/components/UI/SecurityMarquee'
+import ScrollToTop from '@/components/UI/ScrollToTop'
+import UserGuideDetailed from '@/components/Dashboard/UserGuideDetailed'
+import DataIngestion from '@/components/Dashboard/DataIngestion'
+import DocumentationBuffer from '@/components/Dashboard/DocumentationBuffer'
+import ExecutionContext from '@/components/Dashboard/ExecutionContext'
+import ExecutionDashboard from '@/components/Dashboard/ExecutionDashboard'
+import DonationFooter from '@/components/Dashboard/DonationFooter'
+import { Record } from '@/types/record'
 
 // Types
 interface UploadResponse {
@@ -62,6 +64,8 @@ export default function Home() {
         setAktivitasId(parsed.aktivitasId || '')
         setCookies(parsed.cookies || '')
         if (parsed.lang) setLang(parsed.lang)
+        if (parsed.uploadedFile) setUploadedFile(parsed.uploadedFile)
+        if (parsed.attachments) setAttachments(parsed.attachments)
       } catch (e) {
         console.error('Error loading config', e)
       }
@@ -70,9 +74,17 @@ export default function Home() {
 
   useEffect(() => {
     if (mounted) {
-      localStorage.setItem('logbook_config', JSON.stringify({ aktivitasId, cookies, lang }))
+      localStorage.setItem('logbook_config', JSON.stringify({
+        aktivitasId,
+        cookies,
+        lang,
+        uploadedFile,
+        attachments
+      }))
     }
-  }, [aktivitasId, cookies, lang, mounted])
+  }, [aktivitasId, cookies, lang, uploadedFile, attachments, mounted])
+
+
 
   useEffect(() => {
     let interval: any
@@ -179,7 +191,17 @@ export default function Home() {
       setAttachments([])
       setAktivitasId('')
       setCookies('')
-      toast.success(lang === 'id' ? 'State Direset' : 'State Reset')
+
+      // Update localStorage to remove everything except language
+      localStorage.setItem('logbook_config', JSON.stringify({
+        aktivitasId: '',
+        cookies: '',
+        lang: lang,
+        uploadedFile: null,
+        attachments: []
+      }))
+
+      toast.success(lang === 'id' ? 'Seluruh Cache Berhasil Direset' : 'All Cache Successfully Reset')
     } catch (e) {
       toast.error('Gagal mereset state')
     }
@@ -216,7 +238,7 @@ export default function Home() {
           onClose={() => setIsMobileMenuOpen(false)}
         />
 
-        <main className="flex-1 lg:ml-[280px] transition-all pt-10 lg:pt-0">
+        <main className="flex-1 lg:ml-[280px] transition-all pt-20 lg:pt-8">
           <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12 py-12 space-y-12">
             <Header
               lang={lang}
@@ -229,8 +251,18 @@ export default function Home() {
 
             <UserGuideDetailed lang={lang} downloadTemplate={downloadTemplate} />
 
+
+
             <div className="grid lg:grid-cols-2 gap-12 items-start">
               <div className="space-y-12 min-w-0">
+                <ExecutionContext
+                  lang={lang}
+                  aktivitasId={aktivitasId}
+                  setAktivitasId={setAktivitasId}
+                  cookies={cookies}
+                  setCookies={setCookies}
+                />
+
                 <DataIngestion
                   lang={lang}
                   isUploading={isUploading}
@@ -251,14 +283,6 @@ export default function Home() {
                   setAttachments={setAttachments}
                   handleAttachmentsUpload={handleAttachmentsUpload}
                   handleDropAttachments={handleDropAttachments}
-                />
-
-                <ExecutionContext
-                  lang={lang}
-                  aktivitasId={aktivitasId}
-                  setAktivitasId={setAktivitasId}
-                  cookies={cookies}
-                  setCookies={setCookies}
                 />
               </div>
 
@@ -346,12 +370,6 @@ export default function Home() {
         .btn-primary:active {
           box-shadow: 0 0 0 transparent;
           transform: translateY(2px);
-        }
-
-        .input-field {
-          @apply w-full bg-black/5 dark:bg-white/5 border border-[var(--border)] rounded-xl px-5 py-4 text-[var(--text-primary)] outline-none transition-all focus:border-[var(--prime)] focus:ring-2 focus:ring-[var(--prime)]/20 placeholder:text-[var(--text-muted)] placeholder:opacity-50;
-          font-size: 14px;
-          display: block;
         }
 
         .card {

@@ -19,6 +19,28 @@ export default function UserGuideDetailed({ lang, downloadTemplate }: UserGuideD
             id: '01',
             title: t.step1_title,
             desc: t.step1_desc,
+            icon: <Info className="w-4 h-4" />,
+            color: 'text-yellow-500',
+            subSteps: [
+                { text: t.step3_sub1, icon: <ExternalLink className="w-2.5 h-2.5" /> },
+                { text: t.step3_sub2, icon: <ChevronRight className="w-2.5 h-2.5" /> },
+                { text: t.step3_sub3, icon: <ChevronRight className="w-2.5 h-2.5" /> },
+                { text: t.step3_sub4, icon: <ExternalLink className="w-2.5 h-2.5" /> },
+                { text: t.step3_sub5, icon: <ChevronRight className="w-2.5 h-2.5" /> },
+                { text: t.step3_sub6, icon: <ChevronRight className="w-2.5 h-2.5" /> }
+            ]
+        },
+        {
+            id: '02',
+            title: t.step2_title,
+            desc: (
+                <div className="space-y-2">
+                    <p>{t.step2_desc}</p>
+                    <p className="text-[10px] text-[var(--prime)] font-black uppercase tracking-widest bg-[var(--prime-bg)] inline-block px-3 py-1 rounded-lg border border-[var(--prime)]/20">
+                        💡 {t.edit_guide_link}
+                    </p>
+                </div>
+            ),
             icon: <FileText className="w-4 h-4" />,
             color: 'text-blue-500',
             subSteps: [
@@ -29,32 +51,18 @@ export default function UserGuideDetailed({ lang, downloadTemplate }: UserGuideD
                 { text: t.col_luring, icon: <ChevronRight className="w-2.5 h-2.5" /> },
                 { text: t.col_lokasi, icon: <ChevronRight className="w-2.5 h-2.5" /> },
                 { text: t.col_ket, icon: <ChevronRight className="w-2.5 h-2.5" /> },
+                { text: t.col_dosen, icon: <ChevronRight className="w-2.5 h-2.5" /> },
                 { text: t.col_file, icon: <ChevronRight className="w-2.5 h-2.5" /> }
-            ]
-        },
-        {
-            id: '02',
-            title: t.step2_title,
-            desc: t.step2_desc,
-            icon: <Package className="w-4 h-4" />,
-            color: 'text-purple-500',
-            subSteps: [
-                { text: t.filename_match, icon: <ChevronRight className="w-2.5 h-2.5" /> }
             ]
         },
         {
             id: '03',
             title: t.step3_title,
             desc: t.step3_desc,
-            icon: <Info className="w-4 h-4" />,
-            color: 'text-yellow-500',
+            icon: <Package className="w-4 h-4" />,
+            color: 'text-purple-500',
             subSteps: [
-                { text: t.step3_sub1, icon: <ExternalLink className="w-2.5 h-2.5" /> },
-                { text: t.step3_sub2, icon: <ChevronRight className="w-2.5 h-2.5" /> },
-                { text: t.step3_sub3, icon: <ChevronRight className="w-2.5 h-2.5" /> },
-                { text: t.step3_sub4, icon: <ExternalLink className="w-2.5 h-2.5" /> },
-                { text: t.step3_sub5, icon: <ChevronRight className="w-2.5 h-2.5" /> },
-                { text: t.step3_sub6, icon: <ChevronRight className="w-2.5 h-2.5" /> }
+                { text: t.filename_match, icon: <ChevronRight className="w-2.5 h-2.5" /> }
             ]
         },
         {
@@ -114,11 +122,11 @@ export default function UserGuideDetailed({ lang, downloadTemplate }: UserGuideD
                                 </span>
                             </div>
                             <h4 className="text-[13px] font-black text-[var(--text-primary)] uppercase tracking-wider mb-2">{step.title}</h4>
-                            <p className="text-[11px] text-[var(--text-muted)] leading-relaxed italic mb-4">
+                            <div className="text-[11px] text-[var(--text-muted)] leading-relaxed italic mb-4">
                                 {step.desc}
-                            </p>
+                            </div>
                             {step.subSteps && (
-                                <div className={`space-y-2 mt-auto pt-4 border-t border-[var(--border)] group-hover:border-[var(--prime)]/10 grid ${step.id === '01' ? 'grid-cols-1 xl:grid-cols-2 gap-x-4' : 'grid-cols-1'}`}>
+                                <div className={`space-y-2 mt-auto pt-4 border-t border-[var(--border)] group-hover:border-[var(--prime)]/10 grid ${step.id === '02' ? 'grid-cols-1 xl:grid-cols-2 gap-x-4' : 'grid-cols-1'}`}>
                                     {step.subSteps.map((sub, i) => (
                                         <div key={i} className="flex items-start gap-3 text-[11px] text-[var(--text-primary)] font-bold uppercase tracking-tight">
                                             <div className="mt-0.5 text-[var(--prime)] shrink-0">{sub.icon}</div>

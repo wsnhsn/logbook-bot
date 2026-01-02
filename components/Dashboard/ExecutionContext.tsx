@@ -31,8 +31,8 @@ export default function ExecutionContext({
                 </div>
             </div>
 
-            <div className="space-y-8 flex-1">
-                <div className="space-y-3">
+            <div className="space-y-10 flex-1">
+                <div className="space-y-4">
                     <label className="text-[11px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] flex items-center gap-3 ml-1">
                         <Fingerprint className="w-4 h-4 text-[var(--prime)]" />
                         {t.id_activity}
@@ -56,7 +56,7 @@ export default function ExecutionContext({
                     </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                     <label className="text-[11px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] flex items-center gap-3 ml-1">
                         <KeyRound className="w-4 h-4 text-[var(--prime)]" />
                         {t.cookies_label}
@@ -73,7 +73,7 @@ export default function ExecutionContext({
                 </div>
             </div>
 
-            <div className="mt-10 p-5 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex items-start gap-5">
+            <div className="mt-12 p-5 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex items-start gap-5">
                 <Activity className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
                 <p className="text-[11px] text-blue-500/80 font-medium leading-relaxed italic uppercase tracking-wider">
                     {t.sec_notice}

@@ -31,7 +31,7 @@ export default function SecurityMarquee({ lang }: SecurityMarqueeProps) {
                 }
                 .animate-marquee {
                     display: flex;
-                    animation: marquee 40s linear infinite;
+                    animation: marquee 45s linear infinite;
                     width: max-content;
                 }
                 .animate-marquee:hover {

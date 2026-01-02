@@ -170,6 +170,7 @@ def submit_logbook_entries(aktivitas_id: str, cookies_string: str, manifest_id: 
             submission_state['progress'] = ((idx + 1) / len(df)) * 100
             
             try:
+                # Validation
                 if not is_valid_date(str(row['Waktu'])): raise ValueError(f"Invalid date format (DD/MM/YYYY).")
                 if not is_valid_time(str(row['Tstart'])): raise ValueError(f"Invalid start time (HH:MM).")
                 if not is_valid_time(str(row['Tend'])): raise ValueError(f"Invalid end time (HH:MM).")
@@ -186,6 +187,7 @@ def submit_logbook_entries(aktivitas_id: str, cookies_string: str, manifest_id: 
                 
                 submission_state['message'] = f'Submitting row {idx + 1} of {len(df)}...'
                 
+                # Fetch Modal for CSRF and Dosen List
                 modal_url = f"{BASE_URL}/Kegiatan/LogAktivitasKampusMerdeka/Tambah?AktivitasId={aktivitas_id}&idLog={row['JenisLogId']}"
                 response = session.get(modal_url)
                 if response.status_code != 200: raise ValueError(f"Portal access denied (HTTP {response.status_code}).")
@@ -195,30 +197,10 @@ def submit_logbook_entries(aktivitas_id: str, cookies_string: str, manifest_id: 
                 if not csrf_token: raise ValueError("CSRF token not found. Session expired?")
                 csrf_value = csrf_token['value']
                 
-                # Date Formatting
-                waktu_value = row['Waktu']
-                if hasattr(waktu_value, 'strftime'):
-                    waktu_formatted = waktu_value.strftime("%d/%m/%Y")
-                else:
-                    waktu_str = str(waktu_value).strip()
-                    try:
-                        if ' ' in waktu_str: waktu_str = waktu_str.split()[0]
-                        waktu_formatted = datetime.strptime(waktu_str, "%Y-%m-%d").strftime("%d/%m/%Y")
-                    except: waktu_formatted = waktu_str
-                
-                # Logic: 0=Online, 1=Offline, 2=Hybrid
-                is_luring_val = int(row['IsLuring'])
-                if is_luring_val == 1: # Offline
-                    is_luring_str = "true"; tipe_value = "1"
-                elif is_luring_val == 2: # Hybrid
-                    is_luring_str = "true"; tipe_value = "3"
-                else: # Online
-                    is_luring_str = "false"; tipe_value = "2"
-                
-                # Auto-detect form fields
+                # Auto-detect form fields and count lecturers
                 all_inputs = soup.find_all(['input', 'select', 'textarea'])
-                data = {inp.get('name'): inp.get('value', '') for inp in all_inputs if inp.get('name')}
-                portal_fields = list(data.keys())
+                initial_data = {inp.get('name'): inp.get('value', '') for inp in all_inputs if inp.get('name')}
+                portal_fields = list(initial_data.keys())
                 
                 def find_field(possible_names):
                     for p_name in possible_names:
@@ -226,45 +208,75 @@ def submit_logbook_entries(aktivitas_id: str, cookies_string: str, manifest_id: 
                         if match: return match
                     return None
 
-                mappings = {
+                # Date and Logic
+                waktu_formatted = str(row['Waktu'])
+                is_luring_val = int(row['IsLuring'])
+                is_luring_str = "true" if is_luring_val == 1 else "false" if is_luring_val == 0 else ""
+                
+                # Field Mappings
+                data = initial_data.copy()
+                data.update({
                     find_field(['__RequestVerificationToken']) or '__RequestVerificationToken': csrf_value,
                     find_field(['AktivitasId', 'IdAktivitas']) or 'AktivitasId': aktivitas_id,
                     find_field(['Waktu', 'Tanggal']) or 'Waktu': waktu_formatted,
                     find_field(['Tmw', 'JamMulai', 'TStart']) or 'Tmw': str(row['Tstart']),
                     find_field(['Tsw', 'JamSelesai', 'TEnd']) or 'Tsw': str(row['Tend']),
                     find_field(['JenisLogbookKegiatanKampusMerdekaId', 'JenisLogId']) or 'JenisLogId': str(int(row['JenisLogId'])),
-                    find_field(['TipePenyelenggaraan']) or 'TipePenyelenggaraan': tipe_value,
                     find_field(['IsLuring']) or 'IsLuring': is_luring_str,
                     find_field(['Lokasi']) or 'Lokasi': str(row['Lokasi']),
                     find_field(['Keterangan']) or 'Keterangan': str(row['Keterangan']),
-                    "ListDosenPembimbing[0].Value": "true"
-                }
-                
-                dosen_field = find_field(['DosenPenggerak', 'IdDosen'])
-                dosen_value = str(row.get('DosenPenggerak', '')).strip()
-                if dosen_value and dosen_value.lower() not in ['nan', 'none', '', '0']:
-                    mappings[dosen_field or 'DosenPenggerak'] = dosen_value
+                })
 
-                data.update({k: v for k, v in mappings.items() if k})
-                file_field_name = find_field(['File', 'BuktiAktivitas']) or 'File'
+                # Dosen Pembimbing Logic (Anro's Logic)
+                lecturer_cnt = sum(1 for k, v in data.items() if k.startswith("ListDosenPembimbing") and k.endswith(".Key.PembimbingId") and v)
                 
+                # Check for "Dosen" or "DosenPenggerak" column
+                dosen_val = row.get("Dosen") if "Dosen" in row else row.get("DosenPenggerak", "1")
+                dosen_str = str(dosen_val)
+                
+                dosen_ids = [
+                    int(d) if d.strip().isdigit() and int(d) <= lecturer_cnt else 1
+                    for d in dosen_str.split(",")
+                    if d.strip()
+                ]
+
+                if len(dosen_ids) > 1:
+                    for d_id in dosen_ids:
+                        data.update({f"ListDosenPembimbing[{d_id - 1}].Value": "true"})
+                else:
+                    data.update({"ListDosenPembimbing[0].Value": "true"})
+
+                # File Handling
                 import mimetypes
                 ctype, _ = mimetypes.guess_type(file_name)
-                # Use in-memory file object
-                files = {file_field_name: (file_name, io.BytesIO(file_bytes), ctype or "image/jpeg")}
+                files = {"File": (file_name, io.BytesIO(file_bytes), ctype or "image/jpeg")}
                 
                 submit_url = f"{BASE_URL}/Kegiatan/LogAktivitasKampusMerdeka/Tambah?AktivitasId={aktivitas_id}"
-                submit_response = session.post(submit_url, files=files, data=data)
+                submit_response = session.post(submit_url, files=files, data=data, allow_redirects=False)
                 
+                # Success Validation Logic (Anro's Logic)
                 is_success = False
                 portal_message = ""
-                try:
-                    resp_json = submit_response.json()
-                    is_success = resp_json.get('status') is True
-                    portal_message = resp_json.get('message', '')
-                except:
-                    if submit_response.status_code == 200:
-                        is_success = 'success' in submit_response.text.lower()
+                
+                if submit_response.status_code == 302:
+                    # Verification: Check if description exists in the index page
+                    list_url = f"{BASE_URL}/Kegiatan/LogAktivitasKampusMerdeka/Index/{aktivitas_id}"
+                    r_list = session.get(list_url)
+                    if str(row['Keterangan']) in r_list.text:
+                        is_success = True
+                        portal_message = "Uploaded successfully (Verified via 302 & Content)"
+                    else:
+                        is_success = False
+                        portal_message = "Redirected but content not found in index."
+                else:
+                    # Fallback to JSON or text check
+                    try:
+                        resp_json = submit_response.json()
+                        is_success = resp_json.get('status') is True
+                        portal_message = resp_json.get('message', '')
+                    except:
+                        if submit_response.status_code == 200:
+                            is_success = 'success' in submit_response.text.lower()
                 
                 status_str = 'SUCCESS' if is_success else 'FAILED'
                 results.append({'row': idx + 1, 'status': status_str, 'waktu': waktu_formatted, 'message': portal_message or ('Done' if is_success else 'Error')})
@@ -288,6 +300,20 @@ def submit_logbook_entries(aktivitas_id: str, cookies_string: str, manifest_id: 
 
 @app.get("/")
 async def read_root(): return {"message": "IPB Logbook Bot API (Stateless)", "version": "3.0.0"}
+
+@app.delete("/manifest/{manifest_id}")
+async def delete_manifest(manifest_id: str):
+    """Delete uploaded manifest from memory"""
+    try:
+        if manifest_id in IN_MEMORY_STORAGE["manifests"]:
+            IN_MEMORY_STORAGE["manifests"].pop(manifest_id)
+            return {"success": True, "message": "Manifest deleted successfully"}
+        else:
+            raise HTTPException(status_code=404, detail="Manifest not found")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
@@ -340,7 +366,7 @@ async def get_status(): return submission_state
 async def download_template():
     template = {
         'Waktu': ['11/08/2024'], 'Tstart': ['09:00'], 'Tend': ['11:00'],
-        'JenisLogId': [1], 'DosenPenggerak': ['123456789'],
+        'JenisLogId': [1], 'Dosen': ['1'],
         'IsLuring': [1], 'Lokasi': ['Room A'], 'Keterangan': ['Desc'], 'FilePath': ['foto.png']
     }
     df = pd.DataFrame(template)
@@ -359,6 +385,102 @@ async def reset_state():
         IN_MEMORY_STORAGE["attachments"].clear()
         return {"success": True}
     return {"success": False, "message": "Bot is running"}
+
+@app.get("/records")
+async def get_records():
+    """Get all uploaded records from manifests"""
+    try:
+        all_records = []
+        for manifest_id, manifest_bytes in IN_MEMORY_STORAGE["manifests"].items():
+            try:
+                df = load_dataframe_from_bytes(manifest_bytes, manifest_id)
+                for idx, row in df.iterrows():
+                    record = {
+                        'manifest_id': manifest_id,
+                        'row_index': int(idx),
+                        'Waktu': str(row.get('Waktu', '')),
+                        'Tstart': str(row.get('Tstart', '')),
+                        'Tend': str(row.get('Tend', '')),
+                        'JenisLogId': int(row.get('JenisLogId', 0)),
+                        'IsLuring': int(row.get('IsLuring', 0)),
+                        'Lokasi': str(row.get('Lokasi', '')),
+                        'Keterangan': str(row.get('Keterangan', '')),
+                        'FilePath': str(row.get('FilePath', '')),
+                        'Dosen': str(row.get('Dosen', row.get('DosenPenggerak', '1')))
+                    }
+                    all_records.append(record)
+            except Exception as e:
+                print(f"Error loading manifest {manifest_id}: {str(e)}")
+                continue
+        return {'success': True, 'records': all_records, 'count': len(all_records)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/records/{manifest_id}/{row_index}")
+async def update_record(manifest_id: str, row_index: int, record: Dict):
+    """Update a specific record"""
+    try:
+        manifest_bytes = IN_MEMORY_STORAGE["manifests"].get(manifest_id)
+        if not manifest_bytes:
+            raise HTTPException(status_code=404, detail="Manifest not found")
+        
+        df = load_dataframe_from_bytes(manifest_bytes, manifest_id)
+        
+        if row_index < 0 or row_index >= len(df):
+            raise HTTPException(status_code=404, detail="Record not found")
+        
+        # Update the dataframe
+        for key, value in record.items():
+            if key in df.columns:
+                df.at[row_index, key] = value
+        
+        # Save back to memory
+        output = io.BytesIO()
+        if manifest_id.lower().endswith('.csv'):
+            df.to_csv(output, index=False)
+        else:
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False)
+        
+        IN_MEMORY_STORAGE["manifests"][manifest_id] = output.getvalue()
+        
+        return {'success': True, 'message': 'Record updated successfully'}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/records/{manifest_id}/{row_index}")
+async def delete_record(manifest_id: str, row_index: int):
+    """Delete a specific record"""
+    try:
+        manifest_bytes = IN_MEMORY_STORAGE["manifests"].get(manifest_id)
+        if not manifest_bytes:
+            raise HTTPException(status_code=404, detail="Manifest not found")
+        
+        df = load_dataframe_from_bytes(manifest_bytes, manifest_id)
+        
+        if row_index < 0 or row_index >= len(df):
+            raise HTTPException(status_code=404, detail="Record not found")
+        
+        # Delete the row
+        df = df.drop(row_index).reset_index(drop=True)
+        
+        # Save back to memory
+        output = io.BytesIO()
+        if manifest_id.lower().endswith('.csv'):
+            df.to_csv(output, index=False)
+        else:
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False)
+        
+        IN_MEMORY_STORAGE["manifests"][manifest_id] = output.getvalue()
+        
+        return {'success': True, 'message': 'Record deleted successfully', 'remaining': len(df)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
