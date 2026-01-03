@@ -1,3 +1,4 @@
+import Link from 'next/link'
 // @ts-ignore
 import { Upload, FileText, Table, Check } from 'lucide-react'
 import { Language, translations } from '../../utils/translations'
@@ -143,7 +144,7 @@ export default function DataIngestion({
                         </div>
                     </div>
 
-                    <a
+                    <Link
                         href="/records"
                         className="flex items-center justify-between p-4 rounded-xl bg-[var(--prime-bg)] border border-[var(--prime)]/10 hover:border-[var(--prime)]/30 transition-all group"
                     >
@@ -158,7 +159,7 @@ export default function DataIngestion({
                         <svg className="w-4 h-4 text-[var(--prime)] transform transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M5 12h14M12 5l7 7-7 7" />
                         </svg>
-                    </a>
+                    </Link>
                 </div>
             )}
 

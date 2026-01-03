@@ -1,3 +1,4 @@
+import Link from 'next/link'
 // @ts-ignore
 import { LayoutDashboard, FileText, Download, Sun, Moon, Bot, AlertCircle, Languages, Globe, FileEdit } from 'lucide-react'
 import { Language, translations } from '../../utils/translations'
@@ -48,22 +49,20 @@ export default function Sidebar({ theme, setTheme, lang, setLang, downloadTempla
 
                 <nav className="flex-1 space-y-2">
                     <p className="text-[10px] font-black text-[var(--text-muted)] opacity-50 uppercase tracking-[0.4em] mb-6 ml-4">{t.system_hub}</p>
-                    <a
+                    <Link
                         href="/"
-                        onClick={(e) => { e.preventDefault(); router.push('/'); }}
                         className={`sidebar-link ${router.pathname === '/' ? 'active' : ''}`}
                     >
                         <LayoutDashboard className="w-5 h-5" />
                         {t.dashboard}
-                    </a>
-                    <a
+                    </Link>
+                    <Link
                         href="/records"
-                        onClick={(e) => { e.preventDefault(); router.push('/records'); }}
                         className={`sidebar-link ${router.pathname === '/records' ? 'active' : ''}`}
                     >
                         <FileEdit className="w-5 h-5" />
                         {t.records}
-                    </a>
+                    </Link>
                     <button onClick={downloadTemplate} className="sidebar-link w-full">
                         <Download className="w-5 h-5" />
                         {t.template}
