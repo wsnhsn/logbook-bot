@@ -226,10 +226,10 @@ export default function RecordsPage() {
                     <div className="w-full mx-auto px-6 sm:px-10 lg:px-12 py-8 space-y-6">
                         {/* Header Section */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-[var(--border)]">
-                            <div className="flex items-center gap-6">
+                            <div className="flex items-start sm:items-center gap-6">
                                 <button
                                     onClick={() => setIsMobileMenuOpen(true)}
-                                    className="lg:hidden p-3 rounded-xl bg-white/5 border border-[var(--border)] text-[var(--text-primary)] transition-all active:scale-95"
+                                    className="lg:hidden p-3 rounded-xl bg-white/5 border border-[var(--border)] text-[var(--text-primary)] transition-all active:scale-95 shrink-0"
                                 >
                                     <MenuIcon />
                                 </button>
@@ -240,18 +240,18 @@ export default function RecordsPage() {
                                         </div>
                                         <span className="text-[10px] font-black tracking-[0.3em] text-[var(--text-muted)] uppercase">{t.records_page_title}</span>
                                     </div>
-                                    <h1 className="text-2xl font-black tracking-tight text-[var(--text-primary)] uppercase italic leading-none">{t.records_page_subtitle}</h1>
+                                    <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[var(--text-primary)] uppercase italic leading-tight sm:leading-none">{t.records_page_subtitle}</h1>
                                 </div>
                             </div>
 
                             {/* Action Buttons Group */}
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                                 {/* Add Record Button */}
-                                <div className="relative">
+                                <div className="relative w-full sm:w-auto">
                                     <button
                                         onClick={() => setIsAddDropdownOpen(!isAddDropdownOpen)}
                                         disabled={isAddingRecords}
-                                        className="btn-primary flex items-center gap-3 !py-3.5 !px-8 group active:scale-95 transition-all h-[52px]"
+                                        className="btn-primary flex items-center justify-center sm:justify-start gap-3 !py-3.5 px-6 sm:!px-8 group active:scale-95 transition-all h-[52px] w-full"
                                     >
                                         <div className={`p-1.5 rounded-lg bg-white/20 group-hover:bg-white/30 transition-colors ${isAddingRecords ? 'animate-spin' : ''}`}>
                                             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -285,7 +285,7 @@ export default function RecordsPage() {
                                 {records.length > 0 && (
                                     <button
                                         onClick={() => setShowDeleteAllConfirm(true)}
-                                        className="flex items-center gap-3 px-6 h-[52px] rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/20 font-black text-[11px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all active:scale-95 whitespace-nowrap"
+                                        className="flex items-center justify-center gap-3 px-6 h-[52px] rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/20 font-black text-[11px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all active:scale-95 whitespace-nowrap w-full sm:w-auto"
                                     >
                                         <Trash2 className="w-4 h-4" />
                                         {t.delete_all}

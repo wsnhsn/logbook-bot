@@ -77,8 +77,8 @@ export default function VisualAnalytics({ lang, records }: VisualAnalyticsProps)
                     </h3>
                 </div>
 
-                <div className="flex items-center gap-6">
-                    <div className="relative w-20 h-20 shrink-0">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 sm:gap-6">
+                    <div className="relative w-24 h-24 sm:w-20 sm:h-20 shrink-0">
                         <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
                             {/* Background Circle */}
                             <circle
@@ -128,21 +128,21 @@ export default function VisualAnalytics({ lang, records }: VisualAnalyticsProps)
                             <span className="text-[10px] font-black">{Math.round(luringPercent + daringPercent + hybridPercent)}%</span>
                         </div>
                     </div>
-                    <div className="space-y-1.5">
+                    <div className="space-y-2 sm:space-y-1.5 w-full sm:w-auto">
                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                            <div className="w-2.5 h-2.5 rounded-full bg-purple-500"></div>
                             <span className="text-[10px] font-bold uppercase text-[var(--text-secondary)] tracking-tight">
                                 {t.filter_luring}: <span className="text-[var(--text-primary)]">{luringCount}</span>
                             </span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                            <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
                             <span className="text-[10px] font-bold uppercase text-[var(--text-secondary)] tracking-tight">
                                 {t.filter_daring}: <span className="text-[var(--text-primary)]">{daringCount}</span>
                             </span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                            <div className="w-2.5 h-2.5 rounded-full bg-orange-500"></div>
                             <span className="text-[10px] font-bold uppercase text-[var(--text-secondary)] tracking-tight">
                                 {t.filter_hybrid}: <span className="text-[var(--text-primary)]">{hybridCount}</span>
                             </span>
