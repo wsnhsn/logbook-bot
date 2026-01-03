@@ -279,7 +279,7 @@ def submit_logbook_entries(aktivitas_id: str, cookies_string: str, manifest_id: 
                 # File Handling
                 import mimetypes
                 ctype, _ = mimetypes.guess_type(file_name)
-                files = {"File": (file_name, io.BytesIO(file_bytes), ctype or "image/jpeg")}
+                files = {"File": (file_name, io.BytesIO(file_bytes), ctype or ("application/pdf" if file_name.lower().endswith('.pdf') else "image/jpeg"))}
                 
                 submit_url = f"{BASE_URL}/Kegiatan/LogAktivitasKampusMerdeka/Tambah?AktivitasId={aktivitas_id}"
                 submit_response = session.post(submit_url, files=files, data=data, allow_redirects=False)
@@ -353,6 +353,9 @@ async def upload_file(file: UploadFile = File(...)):
         if not file.filename.lower().endswith(('.xlsx', '.xls', '.csv')):
             raise HTTPException(status_code=400, detail="Invalid file type")
         
+        # Clear existing manifests to prevent "ghost" data when switching files
+        IN_MEMORY_STORAGE["manifests"].clear()
+        
         manifest_id = f"{uuid.uuid4()}_{file.filename}"
         IN_MEMORY_STORAGE["manifests"][manifest_id] = content
         
@@ -400,6 +403,31 @@ async def upload_attachments(files: List[UploadFile] = File(...)):
         return {'success': True, 'count': count, 'files': filenames}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/init-manual")
+async def init_manual():
+    """Initialize an empty manifest for manual entry"""
+    try:
+        # Clear existing manifests to ensure a fresh manual session
+        IN_MEMORY_STORAGE["manifests"].clear()
+        
+        manifest_id = f"{uuid.uuid4()}_manual_session.xlsx"
+        df = pd.DataFrame(columns=['Waktu', 'Tstart', 'Tend', 'JenisLogId', 'IsLuring', 'Lokasi', 'Keterangan', 'FilePath', 'Dosen'])
+        
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False)
+        
+        IN_MEMORY_STORAGE["manifests"][manifest_id] = output.getvalue()
+        return {
+            'success': True, 
+            'server_filename': manifest_id, 
+            'filename': 'Manual Session', 
+            'total_rows': 0,
+            'expected_files': []
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/submit")
 async def submit(request: SubmitRequest, background_tasks: BackgroundTasks):
@@ -557,6 +585,59 @@ async def update_record(manifest_id: str, row_index: int, record: Dict):
         return {'success': True, 'message': 'Record updated successfully'}
     except HTTPException:
         raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/records/dummy")
+async def add_dummy_records(request: Dict):
+    """Add template records to the session"""
+    count = request.get('count', 1)
+    try:
+        # Get existing manifest or create a new one
+        manifest_id = None
+        if IN_MEMORY_STORAGE["manifests"]:
+            manifest_id = list(IN_MEMORY_STORAGE["manifests"].keys())[0]
+            content = IN_MEMORY_STORAGE["manifests"][manifest_id]
+            df = load_dataframe_from_bytes(content, manifest_id)
+        else:
+            manifest_id = f"{uuid.uuid4()}_manual_records.xlsx"
+            df = pd.DataFrame(columns=['Waktu', 'Tstart', 'Tend', 'JenisLogId', 'IsLuring', 'Lokasi', 'Keterangan', 'FilePath', 'Dosen'])
+
+        new_rows = []
+        for _ in range(count):
+            new_rows.append({
+                'Waktu': datetime.now().strftime('%d/%m/%Y'),
+                'Tstart': '09:00',
+                'Tend': '17:00',
+                'JenisLogId': 3,
+                'IsLuring': 1,
+                'Lokasi': 'Kantor',
+                'Keterangan': 'Melaksanakan tugas magang harian',
+                'FilePath': 'dokumentasi.png',
+                'Dosen': '1'
+            })
+        
+        df = pd.concat([df, pd.DataFrame(new_rows)], ignore_index=True)
+        
+        # Save back to memory
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False)
+        
+        IN_MEMORY_STORAGE["manifests"][manifest_id] = output.getvalue()
+        return {'success': True, 'count': count, 'total': len(df)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/records/all")
+async def delete_all_records():
+    """Delete all records from all manifests"""
+    try:
+        count = 0
+        for manifest_id in list(IN_MEMORY_STORAGE["manifests"].keys()):
+            IN_MEMORY_STORAGE["manifests"].pop(manifest_id)
+            count += 1
+        return {'success': True, 'message': f'Deleted all records from {count} manifests'}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

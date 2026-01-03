@@ -5,13 +5,15 @@ interface DeleteConfirmDialogProps {
     onConfirm: () => void
     onCancel: () => void
     lang: 'id' | 'en'
+    title?: string
+    message?: string
 }
 
-export default function DeleteConfirmDialog({ onConfirm, onCancel, lang }: DeleteConfirmDialogProps) {
+export default function DeleteConfirmDialog({ onConfirm, onCancel, lang, title, message }: DeleteConfirmDialogProps) {
     const t = translations[lang]
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
             <div className="glass rounded-2xl w-full max-w-md p-8 border-2 border-red-500/20">
                 {/* Icon */}
                 <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-6">
@@ -20,10 +22,10 @@ export default function DeleteConfirmDialog({ onConfirm, onCancel, lang }: Delet
 
                 {/* Content */}
                 <h3 className="text-xl font-black text-center text-[var(--text-primary)] mb-3 uppercase tracking-tight">
-                    {t.delete_confirm}
+                    {title || t.delete_confirm}
                 </h3>
                 <p className="text-center text-[var(--text-muted)] mb-8 text-sm">
-                    {t.delete_message}
+                    {message || t.delete_message}
                 </p>
 
                 {/* Buttons */}

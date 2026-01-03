@@ -9,7 +9,7 @@
 **LOGBOOK-BOT** is a high-performance automation suite designed to help IPB University students manage their Kampus Merdeka Logbook entries with surgical precision and absolute privacy. 
 
 > [!IMPORTANT]
-> **V1.5.0 UPDATE: FULL STATELESS ENGINE**  
+> **V2.0.0 UPDATE: FULL STATELESS ENGINE**  
 > Every byte of data—from Excel manifests to photo proof—is processed entirely in RAM. We store **nothing** on our disks. Once your submission session ends, the memory is purged instantly.
 
 ---

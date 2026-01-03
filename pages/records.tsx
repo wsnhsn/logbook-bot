@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes'
 import { Language, translations } from '@/utils/translations'
 import { Record } from '@/types/record'
 // @ts-ignore
-import { AlertCircle, Search, Filter, ArrowUpDown, X } from 'lucide-react'
+import { Trash2, AlertCircle, Search, Filter, ArrowUpDown, X } from 'lucide-react'
 import Sidebar from '@/components/Layout/Sidebar'
 import ScrollToTop from '@/components/UI/ScrollToTop'
 import SecurityMarquee from '@/components/UI/SecurityMarquee'
@@ -40,6 +40,9 @@ export default function RecordsPage() {
     const [loading, setLoading] = useState(true)
     const [editingRecord, setEditingRecord] = useState<Record | null>(null)
     const [deletingRecord, setDeletingRecord] = useState<Record | null>(null)
+    const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false)
+    const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false)
+    const [isAddingRecords, setIsAddingRecords] = useState(false)
 
     // Search & Filter State
     const [searchQuery, setSearchQuery] = useState('')
@@ -65,6 +68,18 @@ export default function RecordsPage() {
         }
         fetchRecords()
     }, [])
+
+    // Unsaved Changes warning (Browser tab close/refresh)
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (editingRecord) {
+                e.preventDefault()
+                e.returnValue = ''
+            }
+        }
+        window.addEventListener('beforeunload', handleBeforeUnload)
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+    }, [editingRecord])
 
     const fetchRecords = async () => {
         setLoading(true)
@@ -119,6 +134,17 @@ export default function RecordsPage() {
         }
     }
 
+    const handleConfirmDeleteAll = async () => {
+        try {
+            await axios.delete('/api/records/all')
+            toast.success(lang === 'id' ? 'Seluruh data berhasil dihapus' : 'All data deleted successfully')
+            setShowDeleteAllConfirm(false)
+            fetchRecords()
+        } catch (error: any) {
+            toast.error(error.response?.data?.detail || (lang === 'id' ? 'Gagal menghapus seluruh data' : 'Failed to delete all data'))
+        }
+    }
+
     const handleConfirmDelete = async () => {
         if (!deletingRecord) return
 
@@ -129,6 +155,20 @@ export default function RecordsPage() {
             fetchRecords()
         } catch (error: any) {
             toast.error(error.response?.data?.detail || (lang === 'id' ? 'Gagal menghapus record' : 'Failed to delete record'))
+        }
+    }
+
+    const handleAddRecords = async (count: number) => {
+        setIsAddingRecords(true)
+        setIsAddDropdownOpen(false)
+        try {
+            await axios.post('/api/records/dummy', { count })
+            toast.success(lang === 'id' ? `Berhasil menambah ${count} record` : `Successfully added ${count} records`)
+            fetchRecords()
+        } catch (error: any) {
+            toast.error(error.response?.data?.detail || (lang === 'id' ? 'Gagal menambah record' : 'Failed to add record'))
+        } finally {
+            setIsAddingRecords(false)
         }
     }
 
@@ -194,14 +234,63 @@ export default function RecordsPage() {
                                     <MenuIcon />
                                 </button>
                                 <div className="flex flex-col">
-                                    <div className="flex items-center gap-3 mb-1">
-                                        <div className="p-1.5 rounded-lg bg-[var(--prime-bg)] text-[var(--prime)]">
+                                    <div className="flex items-center gap-2.5 mb-2">
+                                        <div className="w-8 h-8 rounded-lg bg-[var(--prime-bg)] flex items-center justify-center text-[var(--prime)] border border-[var(--prime)]/20 shadow-sm shadow-[var(--prime-glow)]">
                                             <DatabaseIcon />
                                         </div>
                                         <span className="text-[10px] font-black tracking-[0.3em] text-[var(--text-muted)] uppercase">{t.records_page_title}</span>
                                     </div>
-                                    <h1 className="text-xl font-black tracking-tighter text-[var(--text-primary)] uppercase italic">{t.records_page_subtitle}</h1>
+                                    <h1 className="text-2xl font-black tracking-tight text-[var(--text-primary)] uppercase italic leading-none">{t.records_page_subtitle}</h1>
                                 </div>
+                            </div>
+
+                            {/* Action Buttons Group */}
+                            <div className="flex items-center gap-3">
+                                {/* Add Record Button */}
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setIsAddDropdownOpen(!isAddDropdownOpen)}
+                                        disabled={isAddingRecords}
+                                        className="btn-primary flex items-center gap-3 !py-3.5 !px-8 group active:scale-95 transition-all h-[52px]"
+                                    >
+                                        <div className={`p-1.5 rounded-lg bg-white/20 group-hover:bg-white/30 transition-colors ${isAddingRecords ? 'animate-spin' : ''}`}>
+                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            </svg>
+                                        </div>
+                                        <span className="text-[11px] font-black uppercase tracking-[0.15em] whitespace-nowrap">{t.add_record}</span>
+                                        <div className={`transition-transform duration-300 ${isAddDropdownOpen ? 'rotate-180' : ''}`}>
+                                            <ArrowUpDown className="w-4 h-4 opacity-50" />
+                                        </div>
+                                    </button>
+
+                                    {isAddDropdownOpen && (
+                                        <div className="absolute right-0 mt-3 w-56 glass rounded-2xl shadow-2xl border border-[var(--border)] overflow-hidden z-50 animate-in fade-in slide-in-from-top-4">
+                                            {[1, 5, 10].map((count) => (
+                                                <button
+                                                    key={count}
+                                                    onClick={() => handleAddRecords(count)}
+                                                    className="w-full flex items-center gap-4 px-6 py-4 text-left text-[11px] font-black uppercase tracking-widest text-[var(--text-primary)] hover:bg-[var(--prime-bg)] hover:text-[var(--prime)] transition-all border-b border-[var(--border)] last:border-0"
+                                                >
+                                                    <div className="w-2 h-2 rounded-full bg-[var(--prime)]" />
+                                                    {(t as any)[`add_${count}`]}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Delete All Button - Only if records exist */}
+                                {records.length > 0 && (
+                                    <button
+                                        onClick={() => setShowDeleteAllConfirm(true)}
+                                        className="flex items-center gap-3 px-6 h-[52px] rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/20 font-black text-[11px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all active:scale-95 whitespace-nowrap"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                        {t.delete_all}
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -213,37 +302,37 @@ export default function RecordsPage() {
                         )}
 
                         {/* Search & Filter Bar */}
-                        <div className="flex flex-col md:flex-row gap-4 mb-6">
+                        <div className="flex flex-col md:flex-row gap-5 mb-8">
                             <div className="relative flex-1 group">
                                 <input
                                     type="text"
                                     placeholder={t.search_records}
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="input-field pl-4 pr-11 w-full"
+                                    className="input-field pl-5 pr-12 w-full !py-4 shadow-sm border-[var(--border)] group-hover:border-[var(--prime)]/50 focus:!border-[var(--prime)] transition-all"
                                 />
-                                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none transition-colors group-focus-within:text-[var(--prime)] text-[var(--text-muted)]">
+                                <div className="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none transition-colors group-focus-within:text-[var(--prime)] text-[var(--text-muted)]">
                                     {searchQuery ? (
                                         <button
                                             onClick={() => setSearchQuery('')}
-                                            className="pointer-events-auto hover:text-[var(--text-primary)]"
+                                            className="pointer-events-auto hover:text-rose-500 transition-colors"
                                         >
                                             <X className="w-4 h-4" />
                                         </button>
                                     ) : (
-                                        <Search className="w-4 h-4" />
+                                        <Search className="w-4 h-4 opacity-40 group-focus-within:opacity-100" />
                                     )}
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2">
-                                <div className="p-3 rounded-xl glass border border-[var(--border)] text-[var(--text-muted)]">
+                            <div className="flex items-center gap-3">
+                                <div className="p-4 rounded-xl glass border border-[var(--border)] text-[var(--text-muted)] shadow-sm">
                                     <Filter className="w-4 h-4" />
                                 </div>
                                 <select
                                     value={filterType}
                                     onChange={(e) => setFilterType(e.target.value)}
-                                    className="input-field min-w-[160px]"
+                                    className="input-field min-w-[200px] !py-4 font-bold appearance-none cursor-pointer border-[var(--border)] hover:border-[var(--prime)]/50 focus:!border-[var(--prime)] shadow-sm"
                                 >
                                     <option value="all">{t.filter_all}</option>
                                     <option value="luring">{t.filter_luring}</option>
@@ -262,18 +351,7 @@ export default function RecordsPage() {
                         </div>
 
                         {/* Records Table */}
-                        {loading ? (
-                            <div className="glass rounded-2xl p-12 border border-[var(--border)] text-center">
-                                <div className="animate-pulse-soft">
-                                    <div className="flex justify-center text-[var(--prime)] mb-4">
-                                        <DatabaseIcon />
-                                    </div>
-                                    <p className="text-[var(--text-muted)] font-bold uppercase tracking-wider text-sm">
-                                        {t.loading_records}
-                                    </p>
-                                </div>
-                            </div>
-                        ) : filteredRecords.length === 0 ? (
+                        {filteredRecords.length === 0 && !loading ? (
                             <div className="glass rounded-2xl p-12 border border-[var(--border)] text-center">
                                 <AlertCircle className="w-16 h-16 mx-auto text-[var(--text-muted)] mb-4 opacity-50" />
                                 <h3 className="text-xl font-black text-[var(--text-primary)] mb-2 uppercase">
@@ -369,6 +447,18 @@ export default function RecordsPage() {
                         onConfirm={handleConfirmDelete}
                         onCancel={() => setDeletingRecord(null)}
                         lang={lang}
+                    />
+                )
+            }
+
+            {
+                showDeleteAllConfirm && (
+                    <DeleteConfirmDialog
+                        onConfirm={handleConfirmDeleteAll}
+                        onCancel={() => setShowDeleteAllConfirm(false)}
+                        lang={lang}
+                        title={t.delete_all_confirm}
+                        message={t.delete_all_message}
                     />
                 )
             }

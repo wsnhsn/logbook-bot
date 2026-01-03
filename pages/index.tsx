@@ -134,11 +134,24 @@ export default function Home() {
     }
   }
 
+  const handleManualMode = async () => {
+    setIsUploading(true)
+    try {
+      const response = await axios.post<UploadResponse>('/api/init-manual')
+      setUploadedFile(response.data)
+      toast.success(lang === 'id' ? 'Sesi Manual Dimulai! Silakan unggah lampiran.' : 'Manual Session Started! Please upload attachments.')
+    } catch (error: any) {
+      toast.error(lang === 'id' ? 'Gagal memulai sesi manual' : 'Failed to start manual session')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   const handleAttachmentsUpload = async (files: FileList) => {
     if (!files || files.length === 0) return
 
     // Validation
-    const allowedExtensions = ['png', 'jpg', 'jpeg']
+    const allowedExtensions = ['png', 'jpg', 'jpeg', 'pdf']
     const invalidFormatFiles: string[] = []
     const mismatchFiles: string[] = []
     const validFiles: File[] = []
@@ -150,7 +163,7 @@ export default function Home() {
         return
       }
 
-      if (uploadedFile?.expected_files) {
+      if (uploadedFile?.expected_files && uploadedFile.filename !== 'Manual Session') {
         if (!uploadedFile.expected_files.includes(file.name)) {
           mismatchFiles.push(file.name)
           return
@@ -162,8 +175,8 @@ export default function Home() {
 
     if (invalidFormatFiles.length > 0) {
       toast.error(lang === 'id'
-        ? `Format tidak didukung (.png/.jpg saja): ${invalidFormatFiles.slice(0, 2).join(', ')}${invalidFormatFiles.length > 2 ? '...' : ''}`
-        : `Unsupported format (.png/.jpg only): ${invalidFormatFiles.slice(0, 2).join(', ')}${invalidFormatFiles.length > 2 ? '...' : ''}`)
+        ? `Format tidak didukung (.png/.jpg/.pdf saja): ${invalidFormatFiles.slice(0, 2).join(', ')}${invalidFormatFiles.length > 2 ? '...' : ''}`
+        : `Unsupported format (.png/.jpg/.pdf only): ${invalidFormatFiles.slice(0, 2).join(', ')}${invalidFormatFiles.length > 2 ? '...' : ''}`)
     }
 
     if (mismatchFiles.length > 0) {
@@ -358,6 +371,7 @@ export default function Home() {
                   uploadedFile={uploadedFile}
                   setUploadedFile={setUploadedFile}
                   handleFileUpload={handleFileUpload}
+                  handleManualMode={handleManualMode}
                   handleDrop={handleDrop}
                 />
 
