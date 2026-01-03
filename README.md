@@ -17,7 +17,9 @@
 ## Features
 
 ### Security First (Stateless Engine)
-- **Zero Disk Footprint**: No local storage for uploads or temporary files. Everything remains in-memory.
+- **Zero Disk Footprint**: No local storage- [x] Fix Manual Mode Data Persistence
+    - [x] Refine sync logic in `records.tsx` to prevent auto-clearing empty manual sessions
+    - [x] Implement session recovery mechanism for manual sessions
 - **Stateless Processing**: Your session data exists only during the transmission window.
 - **Transparency**: High-visibility security marquee ensures you know exactly how your data is handled.
 

@@ -93,13 +93,25 @@ export default function RecordsPage() {
             if (stored) {
                 try {
                     const parsed = JSON.parse(stored)
-                    if (fetchedRecords.length === 0) {
-                        // If no records left, clear the uploadedFile state
-                        parsed.uploadedFile = null
+
+                    // Logic for Manual Session recovery or update
+                    if (fetchedRecords.length > 0 && !parsed.uploadedFile) {
+                        // Recover session if records exist but metadata is missing
+                        parsed.uploadedFile = {
+                            filename: 'Manual Session',
+                            server_filename: fetchedRecords[0].manifest_id, // Use the ID from the first record
+                            total_rows: fetchedRecords.length
+                        }
                     } else if (parsed.uploadedFile) {
-                        // Update the row count metadata
-                        parsed.uploadedFile.total_rows = fetchedRecords.length
+                        if (fetchedRecords.length === 0 && parsed.uploadedFile.filename !== 'Manual Session') {
+                            // Only clear for Excel files if no records left
+                            parsed.uploadedFile = null
+                        } else {
+                            // Always update row count for active sessions
+                            parsed.uploadedFile.total_rows = fetchedRecords.length
+                        }
                     }
+
                     localStorage.setItem('logbook_config', JSON.stringify(parsed))
                 } catch (e) {
                     console.error('Error syncing localStorage:', e)
